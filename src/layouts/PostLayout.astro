@@ -1,0 +1,80 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import { site } from "../site.config";
+
+interface Props {
+  title: string;
+  description?: string;
+  pubDate: Date;
+  updatedDate?: Date;
+  tags?: string[];
+}
+
+const { title, description, pubDate, updatedDate, tags = [] } = Astro.props;
+const formattedDate = pubDate.toLocaleDateString("zh-CN", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+---
+
+<BaseLayout title={title} description={description}>
+  <article>
+    <header>
+      <h1>{title}</h1>
+      <time datetime={pubDate.toISOString()}>{formattedDate}</time>
+      {updatedDate && (
+        <span>（更新于 {updatedDate.toLocaleDateString("zh-CN")})</span>
+      )}
+      {tags.length > 0 && (
+        <div class="tags">
+          {tags.map((tag) => (
+            <a href={`/tags/${tag}`}>{tag}</a>
+          ))}
+        </div>
+      )}
+    </header>
+    <div class="content">
+      <slot />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  article {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  time {
+    color: #666;
+    font-size: 0.9rem;
+  }
+  .tags {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .tags a {
+    background: #f0f0f0;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+  .content {
+    margin-top: 2rem;
+  }
+  .content :global(h2) {
+    margin-top: 2rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .content :global(h3) {
+    margin-top: 1.5rem;
+  }
+</style>

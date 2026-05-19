@@ -1,0 +1,26 @@
+{
+  "sourceDir": "../WincyBlog",
+  "targetDir": "src/content/blog",
+  "include": {
+    "type": "Post",
+    "status": "Published"
+  },
+  "excludePatterns": [
+    "**/配置中心/**",
+    "**/示例文章/**",
+    "**/友链/**",
+    "**/友链副本/**",
+    "**/*空白文章*",
+    "**/EMPTY-ARTICLE.md",
+    "**/Untitled.md",
+    "**/绑定成功测试.md",
+    "**/模板说明.md",
+    "**/Wincy的博客 Article Template.md",
+    "**/加锁文章*"
+  ],
+  "slugify": {
+    "lower": true,
+    "strict": true,
+    "locale": "zh"
+  }
+}
