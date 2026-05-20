@@ -31,4 +31,4 @@ draft: false
 - 缓存击穿（单个热点key过期时间到）
 （1）热点数据永不失效
 （2）互斥锁
-![9b420809-c290-4745-9c35-a39fd1eafdff.png](/blog/9b420809-c290-4745-9c35-a39fd1eafdffpng)
+![9b420809-c290-4745-9c35-a39fd1eafdff.png](/images/9b420809-c290-4745-9c35-a39fd1eafdff.png)

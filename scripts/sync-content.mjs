@@ -16,6 +16,8 @@ const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
 
 const sourceDir = path.resolve(process.cwd(), config.sourceDir);
 const targetDir = path.resolve(process.cwd(), config.targetDir);
+const vaultRoot = path.resolve(process.cwd(), '..'); // Obsidian Vault 根目录
+const imagesDir = path.resolve(process.cwd(), 'public/images');
 
 // 若 sourceDir 不存在（如 Vercel 云端），跳过 sync
 if (!fs.existsSync(sourceDir)) {
@@ -27,6 +29,14 @@ if (!fs.existsSync(sourceDir)) {
 if (!fs.existsSync(targetDir)) {
   fs.mkdirSync(targetDir, { recursive: true });
 }
+
+// 确保图片目录存在
+if (!fs.existsSync(imagesDir)) {
+  fs.mkdirSync(imagesDir, { recursive: true });
+}
+
+// 已复制的图片（避免重复）
+const copiedImages = new Set();
 
 // 检查是否匹配 excludePatterns（文件名 / 通配；SOURCE 当前为扁平目录）
 function shouldExclude(filePath) {
@@ -53,20 +63,67 @@ function shouldExclude(filePath) {
   return false;
 }
 
+// 预扫描 Vault 中所有图片文件，建立文件名 → 路径映射
+function buildImageMap() {
+  const imageMap = new Map();
+  const imageExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.bmp'];
+
+  function scanDir(dir) {
+    if (!fs.existsSync(dir)) return;
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        // 跳过 blog 目录（避免扫描 Astro 工程）
+        if (entry.name === 'blog') continue;
+        scanDir(fullPath);
+      } else {
+        const ext = path.extname(entry.name).toLowerCase();
+        if (imageExtensions.includes(ext)) {
+          imageMap.set(entry.name, fullPath);
+        }
+      }
+    }
+  }
+
+  scanDir(vaultRoot);
+  return imageMap;
+}
+
+const globalImageMap = buildImageMap();
+
+// 复制图片到 public/images/
+function copyImage(imageName) {
+  if (copiedImages.has(imageName)) return true;
+
+  // 从全局图片映射查找
+  const sourceImage = globalImageMap.get(imageName);
+  if (sourceImage) {
+    const targetImage = path.join(imagesDir, imageName);
+    fs.copyFileSync(sourceImage, targetImage);
+    copiedImages.add(imageName);
+    console.log(`    📷 Copied image: ${imageName}`);
+    return true;
+  }
+
+  console.log(`    ⚠️ Image not found: ${imageName}`);
+  return false;
+}
+
 // 转换 Obsidian 内容
 function transformContent(body) {
   let transformed = body;
 
-  // 1. Wiki Link [[xxx]] → [xxx](/blog/xxx-slug)
+  // 1. 图片链接 ![[image.png]] → ![image](/images/image.png) + 复制图片（先处理，避免被 Wiki Link 匹配）
+  transformed = transformed.replace(/!\[\[([^\]]+)\]\]/g, (match, imageName) => {
+    copyImage(imageName);
+    return `![${imageName}](/images/${imageName})`;
+  });
+
+  // 2. Wiki Link [[xxx]] → [xxx](/blog/xxx-slug)
   transformed = transformed.replace(/\[\[([^\]]+)\]\]/g, (match, linkText) => {
     const slug = slugify(linkText, { lower: true, strict: true, locale: 'zh' });
     return `[${linkText}](/blog/${slug})`;
-  });
-
-  // 2. 图片链接 ![[image.png]] → ![image](/images/image.png)
-  transformed = transformed.replace(/!\[\[([^\]]+)\]\]/g, (match, imageName) => {
-    // 检查图片是否存在（后续实现）
-    return `![${imageName}](/images/${imageName})`;
   });
 
   // 3. Obsidian Callout > [!note] → GitHub alert 风格

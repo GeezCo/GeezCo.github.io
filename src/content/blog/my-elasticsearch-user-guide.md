@@ -83,7 +83,7 @@ field ：value
 关键词存在就查询到结果，不存在就没结果。
 根据关键词找到文档id，根据文档id找到document对象
 
-![be34b97d-1b48-4603-9462-8d638a554ccd.png](/blog/be34b97d-1b48-4603-9462-8d638a554ccdpng)
+![be34b97d-1b48-4603-9462-8d638a554ccd.png](/images/be34b97d-1b48-4603-9462-8d638a554ccd.png)
 
 ```plain text
     4.结果中关键词部分高亮显示，分页处理，根据相关度进行排序
