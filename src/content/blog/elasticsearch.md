@@ -1,7 +1,7 @@
 ---
 title: ElasticSearch
-description: ''
-pubDate: '2026-05-15T08:29:00.000Z'
+description: ""
+pubDate: 2026-05-15T08:29:00.000Z
 tags: []
 draft: false
 ---
