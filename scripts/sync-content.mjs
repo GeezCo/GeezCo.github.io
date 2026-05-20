@@ -28,30 +28,27 @@ if (!fs.existsSync(targetDir)) {
   fs.mkdirSync(targetDir, { recursive: true });
 }
 
-// 检查是否匹配排除模式
+// 检查是否匹配 excludePatterns（文件名 / 通配；SOURCE 当前为扁平目录）
 function shouldExclude(filePath) {
   const relPath = path.relative(sourceDir, filePath);
   const filename = path.basename(filePath, '.md');
 
   for (const pattern of config.excludePatterns) {
-    // **/xxx/** 模式 — 目录匹配
-    if (pattern.includes('/**') && pattern.startsWith('**/')) {
-      const dirName = pattern.replace(/^\*\*\//, '').replace(/\/\*\*$/, '');
-      if (relPath.split('/').includes(dirName)) return true;
+    // 子目录名匹配（若日后恢复子文件夹，可用 "配置中心/" 等形式）
+    if (pattern.endsWith('/') || pattern.includes('/')) {
+      const dirSegment = pattern.replace(/\/$/, '').replace(/^\*\*\//, '');
+      if (relPath.split(path.sep).includes(dirSegment)) return true;
     }
-    // **/xxx.md 或 **/xxx* 模式 — 文件名匹配
-    const namePattern = pattern.replace(/^\*\*\//, '').replace(/\.md$/, '').replace(/\*/g, '');
-    if (filename.includes(namePattern) && namePattern.length > 0) return true;
-    // 精确匹配
-    if (pattern.replace(/\*/g, '') === filename) return true;
-  }
 
-  // 硬编码排除规则（确保匹配）
-  if (filename.includes('空白文章')) return true;
-  if (filename.includes('示例文章')) return true;
-  if (filename.includes('加锁文章')) return true;
-  if (filename === 'EMPTY-ARTICLE') return true;
-  if (filename === 'Untitled') return true;
+    const namePattern = pattern
+      .replace(/^\*\*\//, '')
+      .replace(/\.md$/i, '')
+      .replace(/\*/g, '');
+    if (namePattern.length > 0 && filename.includes(namePattern)) return true;
+
+    const exact = pattern.replace(/\*/g, '').replace(/\.md$/i, '');
+    if (exact === filename) return true;
+  }
 
   return false;
 }

@@ -1,7 +1,7 @@
 ---
 title: spring-boot-maven-plugin的踩坑
 description: ''
-pubDate: '2026-05-18T01:27:00.000Z'
+pubDate: '2026-05-19T10:06:51.939Z'
 tags: []
 draft: false
 ---
