@@ -2,6 +2,7 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import remarkGfm from 'remark-gfm';
+import vercel from '@astrojs/vercel';
 
 // Vercel 环境下优先使用 VERCEL_PROJECT_PRODUCTION_URL（正确的 Production URL）
 const siteUrl = process.env.SITE_URL
@@ -12,6 +13,8 @@ const siteUrl = process.env.SITE_URL
 // https://astro.build/config
 export default defineConfig({
   site: siteUrl,
+  output: 'hybrid',
+  adapter: vercel(),
   integrations: [sitemap()],
   markdown: {
     remarkPlugins: [remarkGfm],
