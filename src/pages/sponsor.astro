@@ -3,48 +3,63 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="赞赏支持" description="支持作者的创作">
-  <section class="max-w-3xl mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">赞赏支持</h1>
-    <p class="text-gray-600 mb-8">
-      如果我的文章对你有帮助，欢迎支持我的创作。感谢你的鼓励！
-    </p>
-
-    <div class="grid md:grid-cols-2 gap-8 mb-8">
-      <!-- 支付宝 -->
-      <div class="text-center">
-        <h3 class="text-lg font-semibold mb-4">支付宝</h3>
-        <div class="bg-gray-100 p-4 rounded-lg inline-block">
-          <!-- 替换为你的支付宝赞赏码图片路径 -->
-          <img src="/images/alipay.jpeg" alt="支付宝赞赏码" class="w-48 h-48 object-contain" />
-        </div>
-        <p class="text-gray-500 mt-2 text-sm">扫码赞赏</p>
+  <section class="bg-gradient-to-br from-amber-50 via-white to-orange-50 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-800 py-16">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-12">
+        <h1 class="text-3xl sm:text-4xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
+          ☕ 赞赏支持
+        </h1>
+        <p class="text-lg text-zinc-600 dark:text-zinc-400 max-w-xl mx-auto">
+          如果我的文章对你有帮助，欢迎支持我的创作。感谢你的鼓励！
+        </p>
       </div>
 
-      <!-- 微信 -->
-      <div class="text-center">
-        <h3 class="text-lg font-semibold mb-4">微信支付</h3>
-        <div class="bg-gray-100 p-4 rounded-lg inline-block">
-          <!-- 替换为你的微信赞赏码图片路径 -->
-          <img src="/images/wechat.jpeg" alt="微信赞赏码" class="w-48 h-48 object-contain" />
-        </div>
-        <p class="text-gray-500 mt-2 text-sm">扫码赞赏</p>
-      </div>
-    </div>
+      <!-- 国内支付 -->
+      <div class="bg-white dark:bg-zinc-800/70 rounded-2xl shadow-lg p-8 mb-8">
+        <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-6 text-center">
+          国内用户
+        </h2>
+        <div class="grid sm:grid-cols-2 gap-8">
+          <!-- 支付宝 -->
+          <div class="text-center">
+            <div class="bg-zinc-100 dark:bg-zinc-700/50 p-4 rounded-xl inline-block mb-3">
+              <img src="/images/alipay.jpeg" alt="支付宝赞赏码" class="w-48 h-48 object-contain rounded-lg" />
+            </div>
+            <p class="text-sm text-zinc-500 dark:text-zinc-400">支付宝扫码赞赏</p>
+          </div>
 
-    <!-- 海外用户 -->
-    <div class="border-t border-gray-200 pt-8">
-      <h3 class="text-lg font-semibold mb-4">海外用户</h3>
-      <a
-        href="https://buymeacoffee.com/wincy"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="inline-block bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-3 rounded-lg font-medium"
-      >
-        ☕ Buy Me a Coffee
-      </a>
-      <p class="text-gray-500 mt-2 text-sm">
-        支持 PayPal / Stripe 支付
-      </p>
+          <!-- 微信 -->
+          <div class="text-center">
+            <div class="bg-zinc-100 dark:bg-zinc-700/50 p-4 rounded-xl inline-block mb-3">
+              <img src="/images/wechat.jpeg" alt="微信赞赏码" class="w-48 h-48 object-contain rounded-lg" />
+            </div>
+            <p class="text-sm text-zinc-500 dark:text-zinc-400">微信扫码赞赏</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 海外用户 -->
+      <div class="bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-zinc-700/50 dark:to-zinc-700/50 rounded-2xl p-8 text-center">
+        <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+          🌍 海外用户
+        </h2>
+        <a
+          href="https://buymeacoffee.com/wincy"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-zinc-900 px-8 py-4 rounded-xl font-semibold transition-colors shadow-md"
+        >
+          <span class="text-xl">☕</span> Buy Me a Coffee
+        </a>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-4">
+          支持 PayPal / Stripe 支付
+        </p>
+      </div>
+
+      <!-- 感谢语 -->
+      <div class="text-center mt-12 text-zinc-500 dark:text-zinc-400">
+        <p>每一份支持都是对我的鼓励，感谢你！🙏</p>
+      </div>
     </div>
   </section>
 </BaseLayout>

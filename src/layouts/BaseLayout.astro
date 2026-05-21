@@ -23,8 +23,12 @@ const { title = site.title, description = site.description } = Astro.props;
     <link rel="favicon" href="/favicon.svg" />
     <title>{title}</title>
     <Analytics />
+    <!-- Noto Sans SC 字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
   </head>
-  <body class="min-h-screen bg-white text-gray-900">
+  <body class="min-h-screen bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 antialiased">
     <Header />
     <main class="flex-1">
       <slot />

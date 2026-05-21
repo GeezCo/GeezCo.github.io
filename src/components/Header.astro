@@ -2,17 +2,45 @@
 import { site } from "../site.config";
 ---
 
-<header class="border-b border-gray-200 px-4">
-  <nav class="max-w-3xl mx-auto py-4 flex justify-between items-center">
-    <a href="/" class="font-bold text-xl hover:text-blue-600">
-      {site.title}
+<header class="sticky top-0 z-50 bg-zinc-50/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800">
+  <nav class="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
+    <a href="/" class="group flex items-center gap-2">
+      <span class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-500 transition-colors">
+        {site.title}
+      </span>
     </a>
-    <div class="flex gap-4">
-      <a href="/" class="text-gray-600 hover:text-blue-600">首页</a>
-      <a href="/search" class="text-gray-600 hover:text-blue-600">搜索</a>
-      <a href="/about" class="text-gray-600 hover:text-blue-600">关于</a>
-      <a href="/sponsor" class="text-gray-600 hover:text-blue-600">赞赏</a>
-      <a href="/rss.xml" class="text-gray-600 hover:text-blue-600">RSS</a>
+    <div class="flex items-center gap-6">
+      <a href="/" class="nav-link">首页</a>
+      <a href="/search" class="nav-link">搜索</a>
+      <a href="/about" class="nav-link">关于</a>
+      <a href="/sponsor" class="nav-link highlight">赞赏</a>
+      <a href="/rss.xml" class="nav-link" target="_blank">RSS</a>
     </div>
   </nav>
 </header>
+
+<style>
+  .nav-link {
+    color: #71717a;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .nav-link:hover {
+    color: #6366f1;
+  }
+  .nav-link.highlight {
+    color: #f59e0b;
+  }
+  .nav-link.highlight:hover {
+    color: #d97706;
+  }
+  @media (prefers-color-scheme: dark) {
+    .nav-link {
+      color: #a1a1aa;
+    }
+    .nav-link:hover {
+      color: #818cf8;
+    }
+  }
+</style>

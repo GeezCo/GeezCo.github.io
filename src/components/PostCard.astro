@@ -10,15 +10,34 @@ interface Props {
 const { title, description, pubDate, slug, tags = [] } = Astro.props;
 const formattedDate = pubDate.toLocaleDateString("zh-CN", {
   year: "numeric",
-  month: "short",
+  month: "long",
   day: "numeric",
 });
 ---
 
-<article class="border-b border-gray-200 py-6 last:border-b-0">
-  <a href={`/blog/${slug}`} class="block hover:text-blue-600">
-    <h2 class="text-xl font-semibold mb-1">{title}</h2>
-    <time class="text-gray-500 text-sm">{formattedDate}</time>
-    {description && <p class="mt-2 text-gray-600">{description}</p>}
+<article class="group relative bg-white dark:bg-zinc-800/50 rounded-xl p-6 shadow-sm hover:shadow-md border border-zinc-200 dark:border-zinc-700/50 transition-all duration-300">
+  <a href={`/blog/${slug}`} class="block">
+    <div class="flex flex-col gap-3">
+      <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-2">
+        {title}
+      </h2>
+      {description && (
+        <p class="text-zinc-500 dark:text-zinc-400 text-sm line-clamp-2">
+          {description}
+        </p>
+      )}
+      <div class="flex items-center justify-between text-xs text-zinc-400 dark:text-zinc-500">
+        <time>{formattedDate}</time>
+        {tags.length > 0 && (
+          <div class="flex gap-1">
+            {tags.slice(0, 2).map((tag) => (
+              <span class="bg-zinc-100 dark:bg-zinc-700 px-2 py-0.5 rounded">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   </a>
 </article>

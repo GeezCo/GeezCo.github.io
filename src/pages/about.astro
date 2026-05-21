@@ -4,9 +4,38 @@ import { site } from "../site.config";
 ---
 
 <BaseLayout title="关于" description="关于本博客">
-  <section class="max-w-3xl mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-4">关于</h1>
-    <p class="text-gray-600 mb-4">欢迎来到 {site.title}，一个记录技术与生活的博客。</p>
-    <p class="text-gray-600">作者：{site.author}</p>
+  <section class="bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-800 py-16">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6">
+      <div class="bg-white dark:bg-zinc-800/70 rounded-2xl shadow-lg p-8 sm:p-12">
+        <h1 class="text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-6">
+          关于我
+        </h1>
+
+        <div class="prose prose-zinc dark:prose-invert max-w-none">
+          <p class="text-lg text-zinc-600 dark:text-zinc-400 mb-6">
+            欢迎来到 <strong class="text-indigo-600 dark:text-indigo-400">{site.title}</strong>！
+          </p>
+
+          <p class="text-zinc-700 dark:text-zinc-300 mb-4">
+            这里是我记录技术学习、生活感悟的地方。主要分享：
+          </p>
+
+          <ul class="list-disc pl-6 text-zinc-700 dark:text-zinc-300 space-y-2 mb-6">
+            <li>后端开发（Java、Go、Spring）</li>
+            <li>数据库与缓存（MySQL、Redis、ES）</li>
+            <li>技术面试经验</li>
+            <li>其他感兴趣的技术话题</li>
+          </ul>
+
+          <div class="bg-zinc-100 dark:bg-zinc-700/50 rounded-lg p-6 mt-8">
+            <h3 class="text-lg font-semibold mb-3">联系方式</h3>
+            <div class="flex flex-wrap gap-4">
+              <a href="/sponsor" class="text-amber-600 hover:text-amber-700">☕ 赞赏支持</a>
+              <a href="https://buymeacoffee.com/wincy" target="_blank" class="text-indigo-600 hover:text-indigo-700">Buy Me a Coffee</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 </BaseLayout>
