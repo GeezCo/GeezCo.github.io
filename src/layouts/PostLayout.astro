@@ -49,6 +49,47 @@ const formattedDate = pubDate.toLocaleDateString("zh-CN", {
   </section>
 </BaseLayout>
 
+<script>
+  // 代码块复制功能
+  document.addEventListener('DOMContentLoaded', () => {
+    const codeBlocks = document.querySelectorAll('pre > code');
+
+    codeBlocks.forEach((codeBlock) => {
+      const pre = codeBlock.parentElement;
+      if (!pre) return;
+
+      // 创建复制按钮
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'copy-btn';
+      copyBtn.textContent = '复制';
+      copyBtn.setAttribute('aria-label', '复制代码');
+
+      // 将按钮添加到 pre 元素
+      pre.style.position = 'relative';
+      pre.appendChild(copyBtn);
+
+      // 点击复制
+      copyBtn.addEventListener('click', async () => {
+        const code = codeBlock.textContent || '';
+        try {
+          await navigator.clipboard.writeText(code);
+          copyBtn.textContent = '已复制';
+          copyBtn.classList.add('copied');
+          setTimeout(() => {
+            copyBtn.textContent = '复制';
+            copyBtn.classList.remove('copied');
+          }, 2000);
+        } catch (err) {
+          copyBtn.textContent = '失败';
+          setTimeout(() => {
+            copyBtn.textContent = '复制';
+          }, 2000);
+        }
+      });
+    });
+  });
+</script>
+
 <style>
   .post-header {
     background: linear-gradient(to bottom right, #eef2ff, #f3e8ff);
@@ -120,5 +161,29 @@ const formattedDate = pubDate.toLocaleDateString("zh-CN", {
     max-width: 56rem;
     margin: 0 auto;
     padding: 1rem;
+  }
+
+  /* 代码块复制按钮 */
+  .copy-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background-color: #3f3f46;
+    color: #fafafa;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s, background-color 0.2s;
+  }
+  .copy-btn:hover {
+    opacity: 1;
+    background-color: #52525b;
+  }
+  .copy-btn.copied {
+    background-color: #22c55e;
+    color: #ffffff;
   }
 </style>
