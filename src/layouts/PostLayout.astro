@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
-import { site } from "../site.config";
+import Giscus from "../components/Giscus.astro";
 
 interface Props {
   title: string;
@@ -19,62 +19,30 @@ const formattedDate = pubDate.toLocaleDateString("zh-CN", {
 ---
 
 <BaseLayout title={title} description={description}>
-  <article>
-    <header>
-      <h1>{title}</h1>
-      <time datetime={pubDate.toISOString()}>{formattedDate}</time>
+  <article class="max-w-3xl mx-auto px-4 py-8">
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold mb-2">{title}</h1>
+      <time datetime={pubDate.toISOString()} class="text-gray-500 text-sm">
+        {formattedDate}
+      </time>
       {updatedDate && (
-        <span>（更新于 {updatedDate.toLocaleDateString("zh-CN")})</span>
+        <span class="text-gray-500 text-sm">
+          （更新于 {updatedDate.toLocaleDateString("zh-CN")})
+        </span>
       )}
       {tags.length > 0 && (
-        <div class="tags">
+        <div class="mt-4 flex gap-2 flex-wrap">
           {tags.map((tag) => (
-            <a href={`/tags/${tag}`}>{tag}</a>
+            <a href={`/tags/${tag}`} class="bg-gray-100 px-2 py-1 rounded text-sm hover:bg-gray-200">
+              {tag}
+            </a>
           ))}
         </div>
       )}
     </header>
-    <div class="content">
+    <div class="prose max-w-none">
       <slot />
     </div>
+    <Giscus />
   </article>
 </BaseLayout>
-
-<style>
-  article {
-    max-width: var(--max-width);
-    margin: 0 auto;
-    padding: 2rem 1rem;
-  }
-  h1 {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-  }
-  time {
-    color: #666;
-    font-size: 0.9rem;
-  }
-  .tags {
-    margin-top: 1rem;
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-  .tags a {
-    background: #f0f0f0;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.85rem;
-  }
-  .content {
-    margin-top: 2rem;
-  }
-  .content :global(h2) {
-    margin-top: 2rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--color-border);
-  }
-  .content :global(h3) {
-    margin-top: 1.5rem;
-  }
-</style>

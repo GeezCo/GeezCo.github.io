@@ -9,10 +9,10 @@ const sortedPosts = posts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDa
 ---
 
 <BaseLayout title={site.title} description={site.description}>
-  <section>
-    <h1>{site.title}</h1>
-    <p>{site.description}</p>
-    <div class="posts">
+  <section class="max-w-3xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-2">{site.title}</h1>
+    <p class="text-gray-600 mb-8">{site.description}</p>
+    <div>
       {sortedPosts.map((post) => (
         <PostCard
           title={post.data.title}
@@ -25,19 +25,3 @@ const sortedPosts = posts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDa
     </div>
   </section>
 </BaseLayout>
-
-<style>
-  section {
-    max-width: var(--max-width);
-    margin: 0 auto;
-    padding: 2rem 1rem;
-  }
-  h1 {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-  }
-  p {
-    color: #666;
-    margin-bottom: 2rem;
-  }
-</style>

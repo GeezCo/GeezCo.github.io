@@ -1,0 +1,50 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="赞赏支持" description="支持作者的创作">
+  <section class="max-w-3xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">赞赏支持</h1>
+    <p class="text-gray-600 mb-8">
+      如果我的文章对你有帮助，欢迎支持我的创作。感谢你的鼓励！
+    </p>
+
+    <div class="grid md:grid-cols-2 gap-8 mb-8">
+      <!-- 支付宝 -->
+      <div class="text-center">
+        <h3 class="text-lg font-semibold mb-4">支付宝</h3>
+        <div class="bg-gray-100 p-4 rounded-lg inline-block">
+          <!-- 替换为你的支付宝赞赏码图片路径 -->
+          <img src="/images/alipay.png" alt="支付宝赞赏码" class="w-48 h-48 object-contain" />
+        </div>
+        <p class="text-gray-500 mt-2 text-sm">扫码赞赏</p>
+      </div>
+
+      <!-- 微信 -->
+      <div class="text-center">
+        <h3 class="text-lg font-semibold mb-4">微信支付</h3>
+        <div class="bg-gray-100 p-4 rounded-lg inline-block">
+          <!-- 替换为你的微信赞赏码图片路径 -->
+          <img src="/images/wechat.png" alt="微信赞赏码" class="w-48 h-48 object-contain" />
+        </div>
+        <p class="text-gray-500 mt-2 text-sm">扫码赞赏</p>
+      </div>
+    </div>
+
+    <!-- 海外用户 -->
+    <div class="border-t border-gray-200 pt-8">
+      <h3 class="text-lg font-semibold mb-4">海外用户</h3>
+      <a
+        href="https://buymeacoffee.com/wincy"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-block bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-3 rounded-lg font-medium"
+      >
+        ☕ Buy Me a Coffee
+      </a>
+      <p class="text-gray-500 mt-2 text-sm">
+        支持 PayPal / Stripe 支付
+      </p>
+    </div>
+  </section>
+</BaseLayout>

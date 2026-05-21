@@ -2,35 +2,17 @@
 import { site } from "../site.config";
 ---
 
-<header>
-  <nav>
-    <a href="/">{site.title}</a>
-    <div class="links">
-      <a href="/">首页</a>
-      <a href="/about">关于</a>
-      <a href="/rss.xml">RSS</a>
+<header class="border-b border-gray-200 px-4">
+  <nav class="max-w-3xl mx-auto py-4 flex justify-between items-center">
+    <a href="/" class="font-bold text-xl hover:text-blue-600">
+      {site.title}
+    </a>
+    <div class="flex gap-4">
+      <a href="/" class="text-gray-600 hover:text-blue-600">首页</a>
+      <a href="/search" class="text-gray-600 hover:text-blue-600">搜索</a>
+      <a href="/about" class="text-gray-600 hover:text-blue-600">关于</a>
+      <a href="/sponsor" class="text-gray-600 hover:text-blue-600">赞赏</a>
+      <a href="/rss.xml" class="text-gray-600 hover:text-blue-600">RSS</a>
     </div>
   </nav>
 </header>
-
-<style>
-  header {
-    border-bottom: 1px solid var(--color-border);
-    padding: 1rem;
-  }
-  nav {
-    max-width: var(--max-width);
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  nav > a {
-    font-weight: bold;
-    font-size: 1.2rem;
-  }
-  .links {
-    display: flex;
-    gap: 1rem;
-  }
-</style>
