@@ -1,5 +1,6 @@
 ---
 import { site } from "../site.config";
+import ThemeToggle from "./ThemeToggle.astro";
 ---
 
 <header class="sticky top-0 z-50 bg-zinc-50/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800">
@@ -15,6 +16,7 @@ import { site } from "../site.config";
       <a href="/about" class="nav-link">关于</a>
       <a href="/sponsor" class="nav-link highlight">赞赏</a>
       <a href="/rss.xml" class="nav-link" target="_blank">RSS</a>
+      <ThemeToggle />
     </div>
   </nav>
 </header>
@@ -35,12 +37,10 @@ import { site } from "../site.config";
   .nav-link.highlight:hover {
     color: #d97706;
   }
-  @media (prefers-color-scheme: dark) {
-    .nav-link {
-      color: #a1a1aa;
-    }
-    .nav-link:hover {
-      color: #818cf8;
-    }
+  :global(.dark) .nav-link {
+    color: #a1a1aa;
+  }
+  :global(.dark) .nav-link:hover {
+    color: #818cf8;
   }
 </style>

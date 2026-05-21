@@ -23,9 +23,10 @@ body {
   background: var(--color-bg);
 }
 
-/* 深色模式支持 */
+/* 深色模式 - 系统偏好 */
+.dark body,
 @media (prefers-color-scheme: dark) {
-  body {
+  body:not(.light) {
     background: var(--color-bg-dark);
     color: #fafafa;
   }
@@ -46,42 +47,60 @@ body {
   margin-top: 1.5rem;
 }
 
+/* 代码块样式 - 深色背景 */
 .prose pre {
   background: #1e1e1e;
   padding: 1.25rem;
   border-radius: 0.5rem;
   overflow-x: auto;
   font-family: var(--font-mono);
+  color: #d4d4d4;
 }
 
-.prose code {
+/* 代码块内的 code - 不加背景 */
+.prose pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+/* 行内代码 - 浅色背景 */
+.prose :not(pre) > code {
   background: #f4f4f5;
-  padding: 0.125rem 0.25rem;
+  padding: 0.125rem 0.375rem;
   border-radius: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  color: #c7254e;
 }
 
+/* 深色模式行内代码 */
+.dark .prose :not(pre) > code,
 @media (prefers-color-scheme: dark) {
-  .prose code {
-    background: #27272a;
+  .prose :not(pre) > code {
+    background: #3f3f46;
+    color: #f472b6;
   }
 }
 
+/* 引用块样式 */
 .prose blockquote {
   border-left: 4px solid var(--color-primary);
-  padding-left: 1rem;
+  padding: 1rem 1rem 1rem 1.5rem;
   margin-left: 0;
   color: var(--color-text-muted);
   background: #f4f4f5;
-  padding: 1rem;
   border-radius: 0.5rem;
 }
 
+.dark .prose blockquote,
 @media (prefers-color-scheme: dark) {
   .prose blockquote {
     background: #27272a;
   }
 }
 
+/* 链接样式 */
 .prose a {
   color: var(--color-primary);
   text-decoration: underline;
@@ -90,4 +109,35 @@ body {
 
 .prose a:hover {
   color: var(--color-primary-dark);
+}
+
+/* 图片样式 */
+.prose img {
+  border-radius: 0.5rem;
+  margin: 1.5rem auto;
+}
+
+/* 表格样式 */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+}
+
+.prose th,
+.prose td {
+  border: 1px solid var(--color-border);
+  padding: 0.75rem 1rem;
+}
+
+.prose th {
+  background: #f4f4f5;
+  font-weight: 600;
+}
+
+.dark .prose th,
+@media (prefers-color-scheme: dark) {
+  .prose th {
+    background: #27272a;
+  }
 }

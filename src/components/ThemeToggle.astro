@@ -1,0 +1,48 @@
+---
+// 主题切换按钮
+---
+
+<button
+  id="theme-toggle"
+  class="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+  aria-label="切换主题"
+>
+  <span class="dark:hidden">🌙</span>
+  <span class="hidden dark:inline">☀️</span>
+</button>
+
+<script is:inline>
+  // 主题切换逻辑
+  const toggle = document.getElementById('theme-toggle');
+  const html = document.documentElement;
+
+  // 初始化：检查本地存储或系统偏好
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') {
+    html.classList.add('dark');
+  } else if (savedTheme === 'light') {
+    html.classList.remove('dark');
+  } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    html.classList.add('dark');
+  }
+
+  // 点击切换
+  toggle.addEventListener('click', () => {
+    html.classList.toggle('dark');
+    localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+  });
+
+  // 监听系统偏好变化
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    if (!localStorage.getItem('theme')) {
+      html.classList.toggle('dark', e.matches);
+    }
+  });
+</script>
+
+<style>
+  #theme-toggle {
+    cursor: pointer;
+    font-size: 1rem;
+  }
+</style>
