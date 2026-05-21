@@ -1,95 +1,112 @@
 ---
-title: ElasticSearch
-description: ''
+title: ElasticSearch 启动配置问题解决
+description: 解决 ElasticSearch 启动时文件描述符、线程数、虚拟内存限制过低的问题
 pubDate: '2026-05-15T08:29:00.000Z'
-tags: []
+tags:
+  - ElasticSearch
+  - Linux
 draft: false
 ---
-info:
 
-```plain text
-[1].max file descriptors [4096] for elasticsearch
-    process is too low, increase to at least [65536]
-[2].max number of threads [1889] for user
-    [adam] is too low, increase to at least [4096]
-[3].max virtual memory areas vm.max_map_count [4096]
-    is too low, increase to at least [65536]
+## 问题现象
+
+启动 ElasticSearch 时报错：
+
+```text
+[1] max file descriptors [4096] for elasticsearch process is too low, increase to at least [65536]
+[2] max number of threads [1889] for user [adam] is too low, increase to at least [4096]
+[3] max virtual memory areas vm.max_map_count [4096] is too low, increase to at least [65536]
 ```
 
-`原因:`
+## 原因分析
 
-- 文件描述符fd太少:
+根据官方文档说明：
 
-{% tabs First unique name %}
+> Elasticsearch uses a number of thread pools for different types of operations. It is important that it is able to create new threads whenever needed. Make sure that the number of threads that the Elasticsearch user can create is at least 4096.
 
-切换到root用户 查看硬限制
+ES 是多线程处理任务的，为确保正常运行，使用 ES 的用户可创建的线程数至少需要 4096。
+
+## 解决方案
+
+### 1. 修改文件描述符限制
+
+切换到 root 用户，查看当前硬限制：
 
 ```bash
 ulimit -Hn
 ```
 
+编辑 limits 配置文件：
+
 ```bash
 vim /etc/security/limits.conf
 ```
 
-在limits配置文件中添加下面设置:
+添加以下配置（将 `adam` 替换为你的用户名）：
 
-*(adam是本地用户,替换你自己的)*
-
-```bash
+```text
 adam soft nofile 65536
-
 adam hard nofile 65536
-
 adam hard nproc 4096
-
 adam soft nproc 4096
 ```
 
-退出用户重新登录，使配置生效
+退出用户重新登录使配置生效。
 
-重新 ulimit -Hn 查看硬限制 会发现数值有4096改成65535
+### 2. 修改线程数限制
+
+编辑 nproc 配置文件：
 
 ```bash
 vim /etc/security/limits.d/90-nproc.conf
 ```
 
-找到文件中的如下内容:
+将：
 
-```plain text
+```text
 soft nproc 1024
 ```
 
-修改为:
+修改为：
 
-```plain text
-soft nproc 2048
+```text
+soft nproc 4096
 ```
 
-接下来在/etc/sysctl.conf添加:
+### 3. 修改虚拟内存限制
 
-```plain text
+编辑 sysctl 配置：
+
+```bash
+vim /etc/sysctl.conf
+```
+
+添加：
+
+```text
 vm.max_map_count=655360
 ```
 
-并执行:
+执行命令使配置生效：
 
 ```bash
 sysctl -p
 ```
 
-{% endtabs %}
+## 验证
 
-[参考文档](https://www.elastic.co/guide/en/elasticsearch/reference/7.17/) 中是这么写的:
+重新检查限制值：
 
-Elasticsearch uses a number of thread pools for different types of operations. It is important that it is able to create new threads whenever needed. Make sure that the number of threads that the Elasticsearch user can create is at least 4096.
+```bash
+ulimit -Hn
+```
 
-意思就是说，ES是多线程处理任务的，为了确保ES可以正常运行，使用ES的用户可创建的线程数至少为4096
+数值应从 4096 变为 65535。
 
-This can be done by setting [`ulimit -u 4096`](https://www.elastic.co/guide/en/elasticsearch/reference/7.17/setting-system-settings.html#ulimit) as root before starting Elasticsearch, or by setting `nproc` to `4096` in [`/etc/security/limits.conf`](https://www.elastic.co/guide/en/elasticsearch/reference/7.17/setting-system-settings.html#limits.conf).
+## 补充说明
 
-可以在root用户下使用 `ulimit -u 4096` 这个设置来配置生效。
+如果使用 systemd 作为系统服务启动 ES，则无须额外配置，systemd 会自动处理线程数设置。
 
-The package distributions when run as services under `systemd` will configure the number of threads for the Elasticsearch process automatically. No additional configuration is required.
+## 参考资料
 
-如果使用`systemd`作为系统服务来启动ES则无须额外配置。
+- [ElasticSearch 官方文档 7.17](https://www.elastic.co/guide/en/elasticsearch/reference/7.17/)

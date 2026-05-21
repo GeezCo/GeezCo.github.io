@@ -1,220 +1,222 @@
 ---
-title: My-Elasticsearch-User-Guide
-description: ''
+title: ElasticSearch 用户指南
+description: ElasticSearch 全文检索原理、索引库操作、Mapping 与 Settings 配置详解
 pubDate: '2026-05-15T08:29:00.000Z'
-tags: []
+tags:
+  - ElasticSearch
+  - 全文检索
 draft: false
 ---
-1. 商品搜索专题
 
-一、如何搜素？
+## 一、商品搜索专题
 
-大量数据检索的时候 会产生索引失效的问题
+### 1.1 传统搜索的问题
 
-1)like 失效等情况…
-参考文章: [mysql索引失效, 51cto的文章](https://www.51cto.com/article/702691.html)
+大量数据检索时会产生索引失效问题：
 
-2)where失效，or条件失效，or的左边索引列，右边不是索引列即会失效。
+- `LIKE` 查询失效（如 `%小米%`）
+- `WHERE` 条件中 `OR` 左边是索引列、右边不是索引列会导致索引失效
+- `SELECT *` 滥用
 
-3)包括select * 的滥用
+示例：
 
-example : select * from goods where title like ‘%小米%’;
-数据量庞大时，应该如何处理？
-
-二、使用全文检索
-
-1)数据的分类
-1.结构化数据：
-固定格式、有限长度、数据类型固定。
-- 例如：数据库中的数据就是结构化数据。
-2.非结构化数据：
-长度不固定、数据类型不固定、格式不固定。
-解决办法：
-针对结构化数据 sql语句查询
-非结构化数据:
-1.顺序扫描 : 性能差
-2.全文检索 : 划分词等 - 针对单词建立索引 - 对索引全文检索
-先划分词然后查询索引的过程就叫做全文搜索，索引占用额外的磁盘空间 空间换时间
-2)全文搜索应用场景
-1.搜索引擎
-爬虫之后的分词创建索引，搜索时直接搜索索引。
-2.站内搜索
-电商网站，各大社交平台、论坛等等
-3.磁盘文件等等
-
-3)如何实现全文检索
-1.lucene 在java 中唯一可以使用的全文检索技术
-基于java的全文检索工具包。（偏底层
-2.Solr、Elasticsearch（底层是lucene
-都是基于Lucene的全文检索服务器，独立运行，支持集群。
-实时搜索 es性能更好
-
-4）全文检索流程
-一、创建索引
-1.采集数据
-各种来源的数据。(磁盘 网站 文本 图片url etc…)
-2.分析数据
-关键词拆分
-去标点
-去除停用词
-转化大小写
-得到单词列表
-3.创建文档对象
-把原始文档进行封装 Document对象（相当于一个数据库）
-field：一个document可以有多个field 文件名 文件 等信息，并不是所有的field都需要分析 比如文件路径。
-然后关键词拆分，取出标点符号去除重复词 转换大小写 最终得到一个单词列表
-每个关键词都是一个term
-4.创建索引库
-基于关键词（term）创建索引
-封装Document对象
-索引库存放的是关键词和Document的关系
-二、查询索引大致流程
-1.用户接口
-用户输入查询内容。
-输入可以是一个关键词，也可以是一句话。
-2.封装查询条件
-需要把用户内容进行分词处理。
-需要指定要查询的field
-查询条件：
-field ：value
-遵循以上格式
-3.执行查询
-在索引中根据查询条件查询对应字段，找到对应关键词。
-关键词存在就查询到结果，不存在就没结果。
-根据关键词找到文档id，根据文档id找到document对象
-
-![be34b97d-1b48-4603-9462-8d638a554ccd.png](/images/be34b97d-1b48-4603-9462-8d638a554ccd.png)
-
-```plain text
-    4.结果中关键词部分高亮显示，分页处理，根据相关度进行排序
+```sql
+SELECT * FROM goods WHERE title LIKE '%小米%';
 ```
 
-2.ES部分
+数据量庞大时性能急剧下降。
 
-1）对应关系：
+### 1.2 全文检索方案
 
-ES ：索引库 -> (type)-> Document -> field
+#### 数据分类
 
-mysql ：Database -> table -> 行 -> 列
+| 类型 | 特点 | 示例 |
+|------|------|------|
+| 结构化数据 | 固定格式、有限长度、类型固定 | 数据库数据 |
+| 非结构化数据 | 长度不固定、类型不固定、格式不固定 | 文本文件 |
 
-2）ES API的方法
+#### 非结构化数据检索方案
 
-基于restful接口管理的索引库：
-方法（增删改查）：
+- **顺序扫描**：性能差
+- **全文检索**：划分词 → 建立索引 → 搜索索引
 
-```bash
-put（post） 、delete 、post（put） 、get
+全文检索是"空间换时间"的策略。
+
+#### 全文检索应用场景
+
+- 搜索引擎（爬虫 + 分词 + 索引）
+- 站内搜索（电商、社交平台、论坛）
+- 磁盘文件搜索
+
+#### 全文检索实现技术
+
+| 技术 | 说明 |
+|------|------|
+| Lucene | Java 全文检索工具包（底层） |
+| Solr | 基于 Lucene 的全文检索服务器 |
+| ElasticSearch | 基于 Lucene，实时搜索性能更好 |
+
+### 1.3 全文检索流程
+
+#### 创建索引
+
+1. **采集数据**：来自网站、磁盘、文本等
+2. **分析数据**：关键词拆分、去标点、去停用词、大小写转换
+3. **创建文档对象**：封装为 Document（相当于数据库行）
+4. **创建索引库**：基于关键词（term）建立索引，存储关键词与 Document 的关系
+
+#### 查询索引
+
+1. **用户接口**：输入关键词或句子
+2. **封装查询条件**：分词处理，指定查询 field
+3. **执行查询**：在索引中查找关键词 → 找到 Document ID → 返回 Document
+4. **结果处理**：关键词高亮、分页、相关度排序
+
+![全文检索流程图](/images/be34b97d-1b48-4603-9462-8d638a554ccd.png)
+
+## 二、ES 核心概念
+
+### 2.1 与 MySQL 对应关系
+
+| ElasticSearch | MySQL |
+|---------------|-------|
+| 索引库 | Database |
+| Type（ES 7.x 已废弃） | Table |
+| Document | Row |
+| Field | Column |
+
+### 2.2 RESTful API
+
+基于 RESTful 接口管理索引库：
+
+| HTTP 方法 | 操作 |
+|-----------|------|
+| PUT / POST | 创建 |
+| DELETE | 删除 |
+| POST / PUT | 更新 |
+| GET | 查询 |
+
+URL 格式：
+
+```text
+http://localhost:9200/{索引名称}
 ```
 
-url：
+## 三、Mapping 配置
 
-```bash
-localhost:9200/{索引名称}
-```
+Mapping 定义文档格式：字段名称、数据类型、是否索引、是否存储、是否分词等。
 
-2. Mapping相关
+建议先定义 Mapping 再添加数据。
 
-就是索引文档中文档格式的定义：字段名称，对应的数据类型，是否索引，是否存储，是否分词等。
+### 3.1 创建 Mapping
 
-最好是先定义mapping 再添加数据，也可以直接添加让es自己根据document格式推断出mapping 定义。
+**方法**：PUT
 
-1.创建mapping
+**URL**：`http://192.168.57.10:9200/blog/_mappings`
 
-方法:
-PUT
-
-url:
-ip address:9200/{索引名称}/_mappings
-例如: 192.168.57.10:9200/blog/_mappings
-请求体:
+**请求体**：
 
 ```json
 {
-    "mappings":{
-        // es6.x 版本之前有type字段:
-        // "myblog":{},
-        "properties":{
-            //文档id 这个id可以更改 :
-            "id" : {
-                //id数据类型 long
-                "type":"long"
-            },
-            //文档 名称：
-            "name": {
-                //名称数据类型 文本类型 分词功能只支持text类型 keyword也可以存储字符串但不能分词。
-                "type":"text",
-                // 默认分词器
-                "analyzer":"standard",
-                //document的整个内容是否展示给用户 展示就存储 （一般展示网页摘要
-                "store":"true",
-                // 是否为索引 true可以不加引号 有分词需求必须要创建索引 有些不需要 比如身份证号 手机号 不需要分词
-                "index":true
-            },
-            //用户手机号
-            "mobile":{
-                "type":"keyword",
-                "store":"true",
-                "index":true
-            },
-            //备注
-            "comment":{
-                "type" : "text",
-                "analyzer":"standard",
-                "store" : "true",
-                "index" : true
-            }
-        }
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "long"
+      },
+      "name": {
+        "type": "text",
+        "analyzer": "standard",
+        "store": true,
+        "index": true
+      },
+      "mobile": {
+        "type": "keyword",
+        "store": true,
+        "index": true
+      },
+      "comment": {
+        "type": "text",
+        "analyzer": "standard",
+        "store": true,
+        "index": true
+      }
     }
+  }
 }
 ```
 
-3. Settings 相关
-创建索引库的时候设置settings 属性。
-1.创建Settings
+**字段说明**：
 
-方法:
-PUT
+- `type`：数据类型（text 支持分词，keyword 不支持分词）
+- `analyzer`：分词器（standard 是默认分词器）
+- `store`：是否存储文档完整内容（用于网页摘要展示）
+- `index`：是否创建索引（有分词需求必须为 true）
 
-url:
-ip address:9200/{索引名称}/_settings
-例如: 192.168.57.10:9200/blog/_settings
-请求体:
+## 四、Settings 配置
+
+Settings 定义索引库的物理存储设置。
+
+### 4.1 创建 Settings
+
+**方法**：PUT
+
+**URL**：`http://192.168.57.10:9200/blog/_settings`
+
+**请求体**：
 
 ```json
 {
-    "mappings": {
-        // ...
-    },
-    "settings" : {
-        //该索引库的分片数量 创建后无法修改
-        "number_of_shards" : 5,
-        //副本数量
-        "number_of_replies": 1
+  "mappings": {
+    "properties": {
     }
+  },
+  "settings": {
+    "number_of_shards": 5,
+    "number_of_replicas": 1
+  }
 }
 ```
 
-- 创建索引库之后分片数量不可以再修改了，只可以修改副本数量。
+**重要说明**：
 
-POST修改
+- `number_of_shards`：分片数量，创建后无法修改
+- `number_of_replicas`：副本数量，可修改
 
-ip address:9200/{索引名称}/_doc/{唯一的文件id}
+## 五、文档操作
 
-请求体：
+### 5.1 添加文档
+
+**方法**：POST
+
+**URL**：`http://192.168.57.10:9200/blog/_doc/{文档ID}`
+
+**请求体**：
 
 ```json
 {
-    "id":3,
-    "title":"hshshshshshs",
-    "content" : "dnsinapkp"
-    // etc
+  "id": 3,
+  "title": "文章标题",
+  "content": "文章内容"
 }
 ```
 
-DELETE删除
-url：ip address:9200/{索引名称}/_doc/{唯一的文件id}
+### 5.2 删除文档
 
-GET搜索（根据url的唯一的_id取文档）
-url：ip address:9200/{索引名称}/_doc/{唯一的文件id}
+**方法**：DELETE
 
-- Es 查找自动分词 默认分词器叫做standard 处理英文根据空格处理。处理中文是一个汉字一个关键词。
+**URL**：`http://192.168.57.10:9200/blog/_doc/{文档ID}`
+
+### 5.3 查询文档
+
+**方法**：GET
+
+**URL**：`http://192.168.57.10:9200/blog/_doc/{文档ID}`
+
+## 六、分词说明
+
+ES 默认分词器是 `standard`：
+
+- 英文：按空格分词
+- 中文：单字分词（每个汉字作为一个关键词）
+
+如需更好的中文分词效果，可安装 IK 分词器插件。

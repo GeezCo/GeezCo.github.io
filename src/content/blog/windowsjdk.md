@@ -1,86 +1,78 @@
 ---
-title: windows下多版本jdk管理踩坑
-description: ''
+title: Windows 多版本 JDK 管理踩坑
+description: Windows 系统下配置 JDK 1.8 与 JDK 11 多版本切换的实践经验
 pubDate: '2026-05-15T08:29:00.000Z'
-tags: []
+tags:
+  - JDK
+  - Java
+  - Windows
 draft: false
 ---
-## 问题描述
 
-最近需要搞一个在Windows下多版本的java 环境（别问问就是垃圾公司用的win）
+## 问题背景
 
-自己有个项目需要打包用的jdk11
+项目打包需要 JDK 11，但当前系统默认 JDK 1.8。
 
-打包时候报错 无法识别的版本:11
+切换后报错：无法识别版本: 11
 
-现在想从1.8 切换到 11（下载好了）
+多次尝试配置环境变量并重启无效。
 
-求助了GPT 检查配置并重启也无果
+## 环境配置
 
-最后尝试更改path环境变量优先级成功
-
-## 配置:
-
-1. java版本及配置：
+查看系统已安装的 JDK：
 
 ```bash
 where java
 
-C:\Program File\Java\jdk1.8xxxxxx\bin\java.exe
-C:\Program File\Java\jdk11.0.23xxx\bin\java.exe
+C:\Program Files\Java\jdk1.8.0_xxx\bin\java.exe
+C:\Program Files\Java\jdk11.0.23\bin\java.exe
 ```
 
-其中 JAVA11_HOME 和 JAVA8_HOME 分别是两个系统变量。
-再创建一个新的 JAVA_HOME : `%JAVA11_HOME%` 或者 `%JAVA8_HOME%`来引用当前是哪个环境。
+配置系统变量：
 
-## 排查问题
+- `JAVA8_HOME`：JDK 1.8 路径
+- `JAVA11_HOME`：JDK 11 路径
+- `JAVA_HOME`：`%JAVA11_HOME%` 或 `%JAVA8_HOME%`
 
-win + r -> 输入regedit
+## 问题排查
 
-找到：
+### 检查注册表
 
-```bash
+Win + R → `regedit`：
+
+```text
 HKEY_LOCAL_MACHINE\SOFTWARE\Java Soft\Java Development Kit
 ```
 
-发现 Current Version的值依旧是1.8
+发现 Current Version 值仍为 1.8。
 
-进一步验证了刚才就是环境变量没有生效
+### 临时测试
 
-2. 问题线索：
-
-我发现在bash终端临时设置JAVA_HOME变量是可以的：
+Bash 终端临时设置环境变量：
 
 ```bash
-set JAVA_HOME=C:\Program File\Java\jdk11.0.23xxx\bin\java.exe
+set JAVA_HOME=C:\Program Files\Java\jdk11.0.23
 set PATH=%JAVA_HOME%\bin;%PATH%
 echo %JAVA_HOME%
 java -version
 ```
 
-这就说明是环境变量没有生效。
+临时设置可以生效，说明是环境变量加载顺序问题。
 
 ## 解决方案
 
-尝试重启无效那说明就是加载环境变量的时候有问题
-在配置环境的时候会在 path 中配置：
+检查 PATH 环境变量中 `%JAVA_HOME%\bin` 的位置。
 
-```bash
-%JAVA_HOME%\bin
-```
+将 `%JAVA_HOME%\bin` 移到其他条目之前（但不要放在 system32 前面）。
 
-- 尝试把 path 调整到前面确保优先级高于其他条目。
-
-于是我尝试放在了 xxx/system32后面（尽量不要影响系统环境变量的加载）。
-
-重新打开cmd or bash终端
+重新打开终端验证：
 
 ```bash
 java -version
 ```
 
-成功切换到11
+成功切换到 JDK 11。
 
 ## 总结
 
-这次的问题提醒我，在配置多版本JDK时，不仅要确保`JAVA_HOME`等环境变量设置正确，还要关注`PATH`环境变量的优先级问题。通过这次的经历(cai keng)，我对环境变量的配置和管理有了更深的理解(tu cao).
+多版本 JDK 切换时，不仅要配置 `JAVA_HOME`，还要关注 PATH 环境变量的优先级顺序。

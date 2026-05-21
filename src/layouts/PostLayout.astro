@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
 import Giscus from "../components/Giscus.astro";
+import SponsorBlock from "../components/SponsorBlock.astro";
 
 interface Props {
   title: string;
@@ -45,6 +46,7 @@ const formattedDate = pubDate.toLocaleDateString("zh-CN", {
   </section>
 
   <section class="comments">
+    <SponsorBlock />
     <Giscus />
   </section>
 </BaseLayout>

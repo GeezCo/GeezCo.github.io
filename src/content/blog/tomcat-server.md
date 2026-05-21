@@ -1,40 +1,56 @@
 ---
-title: Tomcat-Server
-description: ''
+title: Tomcat 404 错误排查
+description: Java Web 新手常见问题：Tomcat 访问资源 404 错误的解决方案
 pubDate: '2026-05-15T08:29:00.000Z'
-tags: []
+tags:
+  - Tomcat
+  - Java Web
 draft: false
 ---
-很多java web新手都遇到的错误:
 
-tomcat报错:
-{% note bug description :%}
+## 问题现象
 
-The origin server did not find a current representation for the target resource or is not willing to disclose that one exists.
-{% endnote %}
+访问 `https://localhost:8080` 时报错：
 
-打开`https://localhost:8080`依旧如此
+```text
+The origin server did not find a current representation
+for the target resource or is not willing to disclose that one exists.
+```
 
-解决办法:
-{% tabs Solution %}
+## 解决方案
 
-- 将服务器从eclipse的配置中删掉,重新添加新的服务器 双击.
-- server locations 可选,勾选中间一个.
+### 方案一：重新配置服务器
 
-**如果错误依旧存在 点第二步**
+在 Eclipse/IDEA 中：
 
-若把jsp 文件 放到 WebContent 下面的文件夹里面 。
+1. 删除服务器配置
+2. 重新添加新的服务器
+3. 双击服务器，勾选 Server Locations 中间选项
 
-你的访问路径应该为: `localhost:8080/你的项目名称/你的放jsp的文件夹/jsp文件名称.jsp`
+### 方案二：检查访问路径
 
-例子: localhost:8080/JSTLTest/jsp/JSTLTest.jsp
+若 JSP 文件放在 WebContent 的子文件夹中，访问路径应为：
 
-解释: 第一个JSTLTest为项目名称,jsp为WebContent下的文件夹,专门存放jsp文件的.第二个JSTLTest为文件名.需要加后缀。
+```text
+localhost:8080/项目名/JSP文件夹名/JSP文件名.jsp
+```
 
-{% endtabs %}
+示例：
 
-{% note danger %}
-注意: **WEB-INF文件下的jsp文件是不能直接访问到的.因此要把jsp文件挪到WebContent文件下。**
-{% endnote %}
+```text
+localhost:8080/JSTLTest/jsp/JSTLTest.jsp
+```
 
-[regular::返回csdn原文:: fa-play-circle](https://blog.csdn.net/qq_36296239/article/details/78627140::fa-solid)
+路径解析：
+
+- `JSTLTest`：项目名称
+- `jsp`：WebContent 下的文件夹
+- `JSTLTest.jsp`：JSP 文件名
+
+## 重要提醒
+
+**WEB-INF 目录下的 JSP 文件无法直接访问**，需将 JSP 文件放到 WebContent 目录下。
+
+## 参考资料
+
+[CSDN 原文](https://blog.csdn.net/qq_36296239/article/details/78627140)

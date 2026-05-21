@@ -1,31 +1,41 @@
 ---
-title: spring-boot-maven-plugin的踩坑
-description: ''
+title: spring-boot-maven-plugin 踩坑记录
+description: 解决多模块项目中 spring-boot-maven-plugin 导致的依赖找不到问题
 pubDate: '2026-05-19T10:06:51.939Z'
-tags: []
+tags:
+  - Spring Boot
+  - Maven
 draft: false
 ---
-## 问题描述
 
-我的base-server模块 和 base-api模块 都是隶属于BaseLearn的两个模块其中server在依赖中引用了base-api模块且在代码中使用了base-api中的某些类 但是现在打包server的时候 找不到引用的类 说程序包com.cheems.baseapi.xxxx不存在 但是在idea中ctrl+左键是可以索引到具体的类的，路径没问题 无数次清理maven重新倒入依赖和清理idea缓存都尝试了 也尝试先将api 进行install 然后再打包server也不行。
+## 问题背景
 
-## 排查问题
+项目结构：
 
-尝试先构建api模块
+```
+BaseLearn/
+├── base-api/
+├── base-server/
+```
+
+`base-server` 模块依赖 `base-api` 模块，代码中使用了 `base-api` 的类。
+
+打包 `base-server` 时报错：程序包 `com.cheems.baseapi.xxxx` 不存在。
+
+IDEA 中 Ctrl + 左键可以索引到类，路径没问题。多次清理 Maven 依赖、清理 IDEA 缓存都无效。
+
+## 排查过程
+
+### 尝试一：分模块构建
 
 ```bash
 mvn clean install -pl base-api
-```
-
-再构建server
-
-```bash
 mvn clean install -pl base-server
 ```
 
-依旧报错：程序包不存在一样的错误。
+依旧报错。
 
-检查BaseLearn父模块将api拉到server之前：
+### 尝试二：调整父模块顺序
 
 ```xml
 <modules>
@@ -34,37 +44,51 @@ mvn clean install -pl base-server
 </modules>
 ```
 
-然后
-
 ```bash
 mvn clean install
 ```
 
-重新 `install` api模块 然后 `package` server模块
+重新 install api 模块，再 package server 模块，依旧报错。
 
-依旧同样的错误。
+### 尝试三：精简依赖
 
-## 尝试解决
+注释掉 api 模块中不必要的 `<dependency>`，只保留必要依赖让 api install 成功。
 
-我直接大手一挥直接把api 中的`<dependency></dependency>` 全部注释掉，然后reload，只留下必要的让api模块install成功的依赖
-发现还是报错。
+依旧报错。
 
-于是我注意到了在api模块中：
+## 问题根因
+
+注意到 `base-api` 模块的 pom.xml：
 
 ```xml
-    <build>
-        <plugins>
-            <!-- spring-boot-maven-plugin 会改变默认maven的打包逻辑使得api（当前）模块打包好后 引用api模块的其他模块不能正常打包 报错找不到api中的类-->
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+        </plugin>
+    </plugins>
+</build>
 ```
 
-经过仔细查找资料发现，spring-boot-maven-plugin 会更改maven的默认打包逻辑，导致包无法被别的模块引用。
+**关键发现**：`spring-boot-maven-plugin` 会更改 Maven 的默认打包逻辑，导致包无法被其他模块引用。
+
+## 解决方案
+
+在不需要作为可执行 jar 的模块（如 api 模块）中，移除 `spring-boot-maven-plugin`。
+
+或者添加 skip 配置：
+
+```xml
+<plugin>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-maven-plugin</artifactId>
+    <configuration>
+        <skip>true</skip>
+    </configuration>
+</plugin>
+```
 
 ## 总结
 
-不知道干嘛的插件不要乱装。
+不知道作用的插件不要乱装。被其他模块引用的模块，不应使用 `spring-boot-maven-plugin`。

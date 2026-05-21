@@ -1,32 +1,55 @@
 ---
-title: ES-Kibana整合
-description: ''
+title: ES-Kibana 整合版本冲突解决
+description: 解决 Kibana 与 ElasticSearch 整合时出现的版本冲突问题
 pubDate: '2026-05-18T01:26:00.000Z'
-tags: []
+tags:
+  - ElasticSearch
+  - Kibana
 draft: false
 ---
-console info:
 
-```plain text
+## 问题现象
+
+Kibana 启动时报错：
+
+```text
 [error]...
-[version_conflict_engine_exception]:[task:endpoint:user-artifact-packager:1.0.0]:
-[task:Alerting-alerting_telemetry]and[task:apm-telemetry-task]
+[version_conflict_engine_exception]: [task:endpoint:user-artifact-packager:1.0.0]:
+[task:Alerting-alerting_telemetry] and [task:apm-telemetry-task]
 both are:
 version conflict, document already exists (current version [xx])
 etc...
 ```
 
-突然意识到Document 是ES中的索引库啊，那说明是索引库版本不一致咯前面的 task:apm-telementry 等等应该是索引库的名字 我给他删除了一下试了试，成功了。
-但是如果是实际的开发工作中遇到这种情况，也不能删掉索引库的情况，该怎么办呢？
+## 问题分析
 
-所以我来看官网了。
+错误信息中提到 Document，这是 ES 中的索引库概念。说明是索引库版本不一致导致的冲突。
 
-[如何处理版本冲突](https://www.elastic.co/guide/en/elasticsearch/guide/2.x/version-control.html#version-control)
+`task:apm-telemetry` 等应该是索引库的名称。尝试删除这些索引库后问题解决。
 
-[乐观并发控制](https://www.elastic.co/guide/en/elasticsearch/guide/2.x/optimistic-concurrency-control.html#optimistic-concurrency-control)
+但在实际开发中，删除索引库可能不是最佳方案。
 
-也算是从这个一个小bug 里面学到了如何检索自己的问题 如何排检索优先级：
+## 解决方案
 
-官方文档 >> 该项目的Github issue > 各开源论坛
+### 方案一：删除冲突的索引库
 
-今天先写到这 先不排版了。
+如果可以接受数据丢失，直接删除冲突的索引库。
+
+### 方案二：处理版本冲突
+
+参考官方文档：
+
+- [版本控制](https://www.elastic.co/guide/en/elasticsearch/guide/2.x/version-control.html#version-control)
+- [乐观并发控制](https://www.elastic.co/guide/en/elasticsearch/guide/2.x/optimistic-concurrency-control.html#optimistic-concurrency-control)
+
+使用版本号机制确保数据一致性。
+
+## 问题排查优先级
+
+从这个小 bug 学到了问题检索优先级：
+
+```
+官方文档 > 项目 GitHub Issue > 开源论坛
+```
+
+官方文档是最权威的参考来源。

@@ -1,0 +1,82 @@
+---
+// 文章底部赞赏模块 - 简洁卡片式
+---
+
+<div class="sponsor-block">
+  <p class="sponsor-title">☕ 如果这篇文章对你有帮助</p>
+  <p class="sponsor-desc">欢迎请我喝杯咖啡支持一下</p>
+  <div class="sponsor-links">
+    <a href="/sponsor" class="sponsor-btn domestic">赞赏支持</a>
+    <a href="https://buymeacoffee.com/wincy" target="_blank" rel="noopener" class="sponsor-btn intl">
+      Buy Me a Coffee
+    </a>
+  </div>
+</div>
+
+<style>
+  .sponsor-block {
+    background: linear-gradient(to right, #fef3c7, #ffedd5);
+    border-radius: 1rem;
+    padding: 2rem;
+    text-align: center;
+    margin: 2rem 0;
+  }
+  :global(html.dark) .sponsor-block {
+    background: rgba(39, 39, 42, 0.5);
+  }
+  .sponsor-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #18181b;
+    margin-bottom: 0.5rem;
+  }
+  :global(html.dark) .sponsor-title {
+    color: #fafafa;
+  }
+  .sponsor-desc {
+    color: #71717a;
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+  }
+  :global(html.dark) .sponsor-desc {
+    color: #a1a1aa;
+  }
+  .sponsor-links {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .sponsor-btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .sponsor-btn.domestic {
+    background-color: #6366f1;
+    color: #ffffff;
+  }
+  .sponsor-btn.domestic:hover {
+    background-color: #4f46e5;
+    transform: translateY(-2px);
+  }
+  :global(html.dark) .sponsor-btn.domestic {
+    background-color: #818cf8;
+  }
+  :global(html.dark) .sponsor-btn.domestic:hover {
+    background-color: #6366f1;
+  }
+  .sponsor-btn.intl {
+    background-color: #fbbf24;
+    color: #18181b;
+  }
+  .sponsor-btn.intl:hover {
+    background-color: #f59e0b;
+    transform: translateY(-2px);
+  }
+  :global(html.dark) .sponsor-btn.intl {
+    background-color: #fbbf24;
+    color: #18181b;
+  }
+</style>
