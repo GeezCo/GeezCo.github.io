@@ -1,7 +1,5 @@
 ---
 // Giscus 评论组件 - 基于 GitHub Discussions
-// 配置参数需在 giscus.app 获取
-// 支持深色模式同步
 ---
 
 <div class="giscus mt-8 pt-8 border-t border-gray-200">
@@ -24,34 +22,38 @@
   </script>
 </div>
 
-<script>
-  // Giscus 深色模式同步
-  const getTheme = () => {
-    const saved = localStorage.getItem('theme');
-    if (saved === 'dark') return 'dark';
-    if (saved === 'light') return 'light';
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  };
+<script is:inline>
+  (function() {
+    var getTheme = function() {
+      var saved = localStorage.getItem('theme');
+      if (saved === 'dark') return 'dark';
+      if (saved === 'light') return 'light';
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
 
-  const syncGiscusTheme = (theme: string) => {
-    const iframe = document.querySelector('iframe.giscus-frame') as HTMLIFrameElement;
-    if (!iframe) return;
-    iframe.postMessage({ giscus: { setConfig: { theme } } }, 'https://giscus.app');
-  };
+    var sendTheme = function(iframe) {
+      iframe.contentWindow.postMessage(
+        { giscus: { setConfig: { theme: getTheme() } } },
+        'https://giscus.app'
+      );
+    };
 
-  // 监听 iframe 加载完成
-  window.addEventListener('message', (event) => {
-    if (event.origin !== 'https://giscus.app') return;
-    if (event.data?.giscus?.discussion) {
-      // iframe 加载完成，同步当前主题
-      syncGiscusTheme(getTheme());
-    }
-  });
+    // MutationObserver: 在 iframe.giscus-frame 挂载时立即发送主题
+    var observer = new MutationObserver(function() {
+      var iframe = document.querySelector('iframe.giscus-frame');
+      if (iframe) {
+        observer.disconnect();
+        sendTheme(iframe);
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
 
-  // 监听主题切换消息（来自 ThemeToggle）
-  window.addEventListener('theme-change', ((event: CustomEvent) => {
-    syncGiscusTheme(event.detail.theme);
-  }) as EventListener);
+    // 运行时主题切换
+    window.addEventListener('theme-change', function() {
+      var iframe = document.querySelector('iframe.giscus-frame');
+      if (iframe) sendTheme(iframe);
+    });
+  })();
 </script>
 
 <style>
@@ -59,6 +61,6 @@
     min-height: 200px;
   }
   :global(html.dark) .giscus {
-    border-t-color: #3f3f46;
+    border-top-color: #3f3f46;
   }
 </style>

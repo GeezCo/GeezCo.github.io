@@ -13,8 +13,10 @@ const siteUrl = process.env.SITE_URL
 // https://astro.build/config
 export default defineConfig({
   site: siteUrl,
-  output: 'hybrid',
-  adapter: vercel(),
+  output: 'static',
+  adapter: vercel({
+    includeFiles: ['src/private/resume.pdf'],
+  }),
   integrations: [sitemap()],
   markdown: {
     remarkPlugins: [remarkGfm],

@@ -9,7 +9,7 @@
     "sync": "node scripts/sync-content.mjs",
     "build": "astro build && npx pagefind --site dist",
     "preview": "astro preview",
-    "dev": "npm run sync && astro dev",
+    "dev": "node scripts/sync-content.mjs && astro dev",
     "astro": "astro"
   },
   "dependencies": {

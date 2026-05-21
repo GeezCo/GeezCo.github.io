@@ -1,0 +1,20 @@
+{
+  "sourceDir": "../WincyBlog",
+  "targetDir": "src/content/blog",
+  "include": {
+    "type": "Post",
+    "status": "Published"
+  },
+  "excludePatterns": [
+    "EMPTY-ARTICLE.md",
+    "Untitled.md",
+    "*空白文章*",
+    "*加锁文章*",
+    "*示例文章*"
+  ],
+  "slugify": {
+    "lower": true,
+    "strict": true,
+    "locale": "zh"
+  }
+}

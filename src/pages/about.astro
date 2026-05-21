@@ -17,7 +17,25 @@ import { site } from "../site.config";
       </ul>
       <div class="resume">
         <h3>📄 简历</h3>
-        <a href="/resume.pdf" target="_blank" class="resume-link">下载 PDF</a>
+        <div id="resume-area">
+          <div id="resume-locked">
+            <p class="resume-hint">请输入密码以查看简历</p>
+            <div class="resume-password-row">
+              <input
+                type="password"
+                id="resume-password"
+                placeholder="请输入密码"
+                class="resume-input"
+              />
+              <button id="resume-submit" class="resume-btn">验证</button>
+            </div>
+            <p id="resume-error" class="resume-error hidden">密码错误，请重试</p>
+          </div>
+          <div id="resume-unlocked" class="hidden">
+            <a id="resume-download-link" class="resume-link">下载 PDF</a>
+            <p id="resume-expired" class="resume-error hidden">Token 已过期，请重新输入密码</p>
+          </div>
+        </div>
       </div>
       <div class="links">
         <h3>🔗 其他链接</h3>
@@ -31,6 +49,80 @@ import { site } from "../site.config";
     </article>
   </section>
 </BaseLayout>
+
+<script>
+  const locked = document.getElementById('resume-locked')!;
+  const unlocked = document.getElementById('resume-unlocked')!;
+  const passwordInput = document.getElementById('resume-password') as HTMLInputElement;
+  const submitBtn = document.getElementById('resume-submit')!;
+  const errorEl = document.getElementById('resume-error')!;
+  const downloadLink = document.getElementById('resume-download-link') as HTMLAnchorElement;
+  const expiredEl = document.getElementById('resume-expired')!;
+
+  const TOKEN_KEY = 'resume_token';
+
+  // 检查是否已有有效 token
+  async function checkToken(token) {
+    try {
+      const res = await fetch(`/api/resume-download?token=${encodeURIComponent(token)}`, { method: 'HEAD' });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  }
+
+  async function tryAutoUnlock() {
+    const token = sessionStorage.getItem(TOKEN_KEY);
+    if (token && await checkToken(token)) {
+      showUnlocked(token);
+    }
+  }
+
+  function showUnlocked(token) {
+    locked.classList.add('hidden');
+    unlocked.classList.remove('hidden');
+    expiredEl.classList.add('hidden');
+    downloadLink.href = `/api/resume-download?token=${encodeURIComponent(token)}`;
+  }
+
+  function showError() {
+    errorEl.classList.remove('hidden');
+  }
+
+  submitBtn.addEventListener('click', async () => {
+    errorEl.classList.add('hidden');
+    const password = passwordInput.value;
+    if (!password) return;
+
+    try {
+      const res = await fetch('/api/resume-verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+
+      if (!res.ok) {
+        showError();
+        return;
+      }
+
+      const { token } = await res.json();
+      sessionStorage.setItem(TOKEN_KEY, token);
+      showUnlocked(token);
+    } catch {
+      showError();
+    }
+  });
+
+  passwordInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      submitBtn.click();
+    }
+  });
+
+  // 页面加载时尝试自动解锁
+  tryAutoUnlock();
+</script>
 
 <style>
   .about-page {
@@ -118,6 +210,7 @@ import { site } from "../site.config";
     border-radius: 0.5rem;
     font-weight: 500;
     transition: background-color 0.2s;
+    cursor: pointer;
   }
   .resume-link:hover {
     background-color: #4f46e5;
@@ -127,6 +220,68 @@ import { site } from "../site.config";
   }
   :global(html.dark) .resume-link:hover {
     background-color: #6366f1;
+  }
+  .resume-hint {
+    color: #71717a;
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+  }
+  :global(html.dark) .resume-hint {
+    color: #a1a1aa;
+  }
+  .resume-password-row {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .resume-input {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d4d4d8;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    background-color: #ffffff;
+    color: #18181b;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .resume-input:focus {
+    border-color: #6366f1;
+  }
+  :global(html.dark) .resume-input {
+    background-color: #3f3f46;
+    color: #fafafa;
+    border-color: #52525b;
+  }
+  :global(html.dark) .resume-input:focus {
+    border-color: #818cf8;
+  }
+  .resume-btn {
+    padding: 0.5rem 1rem;
+    background-color: #6366f1;
+    color: #ffffff;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  .resume-btn:hover {
+    background-color: #4f46e5;
+  }
+  :global(html.dark) .resume-btn {
+    background-color: #818cf8;
+  }
+  :global(html.dark) .resume-btn:hover {
+    background-color: #6366f1;
+  }
+  .resume-error {
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+  }
+  .hidden {
+    display: none;
   }
   .links {
     background-color: #f4f4f5;
