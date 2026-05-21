@@ -1,179 +1,152 @@
-# Astro 博客部署手册
+# Wincy Blog Template
 
-**从 Obsidian 写作 → Git → Astro 站点 → Vercel 部署**
+一个基于 Astro 的静态博客模板，支持一键部署到 Vercel。
 
----
+**Live Demo**: [wincy-blog.vercel.app](https://wincy-blog.vercel.app)
 
 ## 特性
 
-- Tailwind CSS v4 现代样式
-- 夜间模式切换
-- Giscus 评论系统
-- Pagefind 站内搜索
-- Umami Analytics
-- RSS + Sitemap
-
----
-
-## 目录结构
-
-```
-Obsidian Vault/
-│
-├── BlogContent/              ← 写作目录（不进 Git）
-│   └── *.md                  ← 文章源文件
-│
-└── blog/                     ← Astro 工程（推送到 GitHub）
-    │
-    ├── src/
-    │   ├── content/blog/     ← sync 自动生成
-    │   ├── pages/            ← 页面文件
-    │   ├── layouts/          ← 布局模板
-    │   ├── components/       ← 组件
-    │   └── styles/           ← CSS
-    │
-    ├── scripts/              ← sync 脚本
-    ├── public/images/        ← 图片目录
-    └── theme.config.ts       ← 配色配置
-```
-
----
-
-## 工作流程
-
-```
-Obsidian 写文章
-      ↓
-npm run sync（文章 + 图片 → blog）
-      ↓
-git commit → push
-      ↓
-Vercel 自动构建部署
-```
-
----
+- ⚡ **极速加载** - Astro 零 JS 默认策略，首屏性能 95+
+- 🌙 **夜间模式** - 自动检测系统偏好，手动切换持久化
+- 📝 **Markdown 写作** - Obsidian / VS Code 直接编辑
+- 🔍 **站内搜索** - Pagefind 全文搜索
+- 💬 **评论系统** - Giscus（GitHub Discussions）
+- 📊 **访问统计** - Umami（隐私友好）
+- 🎨 **一键换色** - 7 种配色预设，改一行代码切换
+- 📋 **代码复制** - 文章代码块一键复制按钮
+- 📱 **响应式设计** - 移动端完美适配
 
 ## 快速开始
 
-### 环境要求
+### 1. Fork 本仓库
 
-| 软件 | 版本 |
-|-----|------|
-| Node.js | ≥ 22.12.0 |
-| Git | 任意 |
-| GitHub | 账号 |
-| Vercel | 账号 |
+点击 GitHub 页面右上角 `Fork` 按钮。
 
-### 安装依赖
+### 2. 克隆到本地
+
+```bash
+git clone https://github.com/YOUR_USERNAME/wincy-blog.git
+cd wincy-blog
+```
+
+### 3. 安装依赖
 
 ```bash
 npm install
 ```
 
-### 同步文章
+### 4. 本地预览
 
 ```bash
-npm run sync
+npm run dev
 ```
 
-### 构建
+访问 `http://localhost:4321` 查看效果。
 
-```bash
-npm run build
-```
+### 5. 写文章
 
-### 本地预览
+在 `src/content/blog/` 目录创建 Markdown 文件：
 
-```bash
-npm run preview
-```
-
+```markdown
+---
+title: 我的第一篇文章
+description: 文章简介
+pubDate: 2026-05-21
+tags: [技术, 笔记]
 ---
 
-## 写作流程
+文章内容...
+```
 
-每次写新文章：
+### 6. 构建部署
 
-1. Obsidian 创建文章
-2. 添加 frontmatter：
-   ```yaml
-   ---
-   type: Post
-   status: Published
-   date: 2026-05-21
-   tags: [技术]
-   summary: 简介
-   ---
-   ```
-3. `npm run sync`
-4. `git add . && git commit -m "新增文章"`
-5. `git push`
+```bash
+npm run build   # 构建静态文件
+npm run preview # 本地预览构建结果
+```
 
----
+## 部署到 Vercel
 
-## 配色切换
+1. 登录 [Vercel](https://vercel.com)
+2. 点击 `New Project` → Import 你 Fork 的仓库
+3. Framework 选择 `Astro`
+4. 点击 `Deploy`
 
-修改 `src/theme.config.ts`：
+完成后 Vercel 会分配一个域名，每次 push 自动部署。
+
+## 自定义配置
+
+### 站点信息
+
+编辑 `src/site.config.ts`：
 
 ```ts
-// 可选主题：indigo, green, red, orange, blue, pink, dark
+export const site = {
+  title: "你的博客名称",
+  description: "博客简介",
+  author: "你的名字",
+};
+```
+
+### 主题配色
+
+编辑 `src/theme.config.ts`：
+
+```ts
+// 可选：indigo, green, red, orange, blue, pink, dark
 export const currentTheme = themePresets.green;
 ```
 
----
+### 评论系统
 
-## 夜间模式
+1. 在你的 GitHub 仓库启用 Discussions
+2. 访问 [giscus.app](https://giscus.app/zh-CN) 获取配置
+3. 更新 `src/components/Giscus.astro` 中的 `data-repo` 等参数
 
-点击导航栏 🌙/☀️ 按钮：
-- 自动保存偏好
-- 下次访问保持选择
-- 支持系统偏好检测
+### 访问统计
 
----
-
-## 第三方服务
-
-### Giscus 评论
-
-1. GitHub repo → Settings → Discussions → Enable
-2. 访问 giscus.app 获取配置
-3. 更新 `src/components/Giscus.astro`
-
-### Umami Analytics
-
-1. 注册 cloud.umami.is
-2. 获取 website-id
+1. 注册 [Umami Cloud](https://cloud.umami.is)（免费 100k events/月）
+2. 创建网站获取 `website-id`
 3. 更新 `src/components/Analytics.astro`
 
 ### 赞赏页面
 
-1. 放置收款码到 `public/images/`
-2. 更新 `src/pages/sponsor.astro`
+1. 准备支付宝/微信收款码图片
+2. 放入 `public/images/`
+3. 更新 `src/pages/sponsor.astro` 图片路径
 
----
+## 目录结构
 
-## Vercel 配置
+```
+blog/
+├── src/
+│   ├── content/blog/    ← 文章 Markdown 文件
+│   ├── pages/           ← 页面（首页、关于、搜索等）
+│   ├── layouts/         ← 布局模板
+│   ├── components/      ← UI 组件
+│   ├── styles/          ← 全局样式
+│   ├── site.config.ts   ← 站点配置
+│   └── theme.config.ts  ← 主题配色
+├── public/
+│   └── images/          ← 图片资源
+├── astro.config.mjs     ← Astro 配置
+└── package.json
+```
 
-| 配置项 | 值 |
-|-----|-----|
-| Framework | Astro |
-| Build Command | `npm run build` |
-| Output | `dist` |
-| Env `SITE_URL` | 你的 Production URL |
+## 技术栈
 
----
-
-## 常见问题
-
-| 问题 | 解决 |
-|-----|-----|
-| 代码块样式异常 | 检查 global.css |
-| 夜间模式无效 | 检查 ThemeToggle |
-| 图片不显示 | 重新 npm run sync |
-| RSS URL 错误 | 用 VERCEL_PROJECT_PRODUCTION_URL |
-
----
+| 技术 | 用途 |
+|------|------|
+| Astro 6 | 静态站点生成 |
+| Tailwind CSS v4 | 样式系统 |
+| Pagefind | 站内搜索 |
+| Giscus | 评论系统 |
+| Umami | 访问统计 |
 
 ## License
 
-MIT
+MIT - 自由使用和修改
+
+## 致谢
+
+基于 Astro 官方模板构建，感谢 Astro 团队和开源社区。
