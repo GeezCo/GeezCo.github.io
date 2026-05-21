@@ -3,44 +3,80 @@ import { site } from "../site.config";
 import ThemeToggle from "./ThemeToggle.astro";
 ---
 
-<header class="sticky top-0 z-50 bg-zinc-50/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800">
-  <nav class="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
-    <a href="/" class="group flex items-center gap-2">
-      <span class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-500 transition-colors">
-        {site.title}
-      </span>
-    </a>
-    <div class="flex items-center gap-6">
-      <a href="/" class="nav-link">首页</a>
-      <a href="/search" class="nav-link">搜索</a>
-      <a href="/about" class="nav-link">关于</a>
-      <a href="/sponsor" class="nav-link highlight">赞赏</a>
-      <a href="/rss.xml" class="nav-link" target="_blank">RSS</a>
+<header class="header">
+  <nav class="nav">
+    <a href="/" class="logo">{site.title}</a>
+    <div class="nav-links">
+      <a href="/">首页</a>
+      <a href="/search">搜索</a>
+      <a href="/about">关于</a>
+      <a href="/sponsor" class="highlight">赞赏</a>
+      <a href="/rss.xml" target="_blank">RSS</a>
       <ThemeToggle />
     </div>
   </nav>
 </header>
 
 <style>
-  .nav-link {
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background-color: rgba(250, 250, 250, 0.8);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid #e4e4e7;
+    padding: 1rem;
+  }
+  :global(html.dark) .header {
+    background-color: rgba(24, 24, 27, 0.8);
+    border-bottom-color: #3f3f46;
+  }
+  .nav {
+    max-width: 64rem;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #6366f1;
+    transition: color 0.2s;
+  }
+  .logo:hover {
+    color: #4f46e5;
+  }
+  :global(html.dark) .logo {
+    color: #818cf8;
+  }
+  :global(html.dark) .logo:hover {
+    color: #6366f1;
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .nav-links a {
     color: #71717a;
     font-size: 0.875rem;
     font-weight: 500;
     transition: color 0.2s;
   }
-  .nav-link:hover {
+  .nav-links a:hover {
     color: #6366f1;
   }
-  .nav-link.highlight {
-    color: #f59e0b;
-  }
-  .nav-link.highlight:hover {
-    color: #d97706;
-  }
-  :global(.dark) .nav-link {
+  :global(html.dark) .nav-links a {
     color: #a1a1aa;
   }
-  :global(.dark) .nav-link:hover {
+  :global(html.dark) .nav-links a:hover {
     color: #818cf8;
+  }
+  .nav-links .highlight {
+    color: #f59e0b;
+  }
+  .nav-links .highlight:hover {
+    color: #d97706;
   }
 </style>

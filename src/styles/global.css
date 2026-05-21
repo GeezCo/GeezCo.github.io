@@ -1,40 +1,42 @@
 @import "tailwindcss";
 
-/* 自定义主题变量 */
+/* Tailwind v4 深色模式 class 策略 */
+@source inline("dark:");
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* 主题变量 */
 @theme {
   --font-sans: "Noto Sans SC", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   --color-primary: #6366f1;
-  --color-primary-dark: #4f46e5;
   --color-secondary: #8b5cf6;
   --color-accent: #f59e0b;
-  --color-bg: #fafafa;
+  --color-bg-light: #fafafa;
   --color-bg-dark: #18181b;
   --color-text: #27272a;
-  --color-text-muted: #71717a;
+  --color-muted: #71717a;
   --color-border: #e4e4e7;
-  --max-width-prose: 800px;
 }
 
-/* 全局基础样式 */
+/* 全局样式 */
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: var(--font-sans);
   line-height: 1.75;
-  background: var(--color-bg);
 }
 
-/* 深色模式 - 系统偏好 */
-.dark body,
-@media (prefers-color-scheme: dark) {
-  body:not(.light) {
-    background: var(--color-bg-dark);
-    color: #fafafa;
-  }
+/* 深色模式切换时的背景色 */
+html.dark body {
+  background-color: var(--color-bg-dark);
+  color: #fafafa;
 }
 
-/* 文章内容样式 */
+/* 文章内容 */
 .prose {
-  max-width: var(--max-width-prose);
+  max-width: 800px;
 }
 
 .prose h2 {
@@ -47,9 +49,9 @@ body {
   margin-top: 1.5rem;
 }
 
-/* 代码块样式 - 深色背景 */
+/* 代码块 - 深色背景 */
 .prose pre {
-  background: #1e1e1e;
+  background-color: #1e1e1e;
   padding: 1.25rem;
   border-radius: 0.5rem;
   overflow-x: auto;
@@ -57,16 +59,15 @@ body {
   color: #d4d4d4;
 }
 
-/* 代码块内的 code - 不加背景 */
 .prose pre code {
   background: transparent;
   padding: 0;
   color: inherit;
 }
 
-/* 行内代码 - 浅色背景 */
+/* 行内代码 */
 .prose :not(pre) > code {
-  background: #f4f4f5;
+  background-color: #f4f4f5;
   padding: 0.125rem 0.375rem;
   border-radius: 0.25rem;
   font-family: var(--font-mono);
@@ -74,33 +75,26 @@ body {
   color: #c7254e;
 }
 
-/* 深色模式行内代码 */
-.dark .prose :not(pre) > code,
-@media (prefers-color-scheme: dark) {
-  .prose :not(pre) > code {
-    background: #3f3f46;
-    color: #f472b6;
-  }
+html.dark .prose :not(pre) > code {
+  background-color: #3f3f46;
+  color: #f472b6;
 }
 
-/* 引用块样式 */
+/* 引用块 */
 .prose blockquote {
   border-left: 4px solid var(--color-primary);
   padding: 1rem 1rem 1rem 1.5rem;
   margin-left: 0;
-  color: var(--color-text-muted);
-  background: #f4f4f5;
+  color: var(--color-muted);
+  background-color: #f4f4f5;
   border-radius: 0.5rem;
 }
 
-.dark .prose blockquote,
-@media (prefers-color-scheme: dark) {
-  .prose blockquote {
-    background: #27272a;
-  }
+html.dark .prose blockquote {
+  background-color: #27272a;
 }
 
-/* 链接样式 */
+/* 链接 */
 .prose a {
   color: var(--color-primary);
   text-decoration: underline;
@@ -108,16 +102,16 @@ body {
 }
 
 .prose a:hover {
-  color: var(--color-primary-dark);
+  color: #4f46e5;
 }
 
-/* 图片样式 */
+/* 图片 */
 .prose img {
   border-radius: 0.5rem;
   margin: 1.5rem auto;
 }
 
-/* 表格样式 */
+/* 表格 */
 .prose table {
   width: 100%;
   border-collapse: collapse;
@@ -131,13 +125,10 @@ body {
 }
 
 .prose th {
-  background: #f4f4f5;
+  background-color: #f4f4f5;
   font-weight: 600;
 }
 
-.dark .prose th,
-@media (prefers-color-scheme: dark) {
-  .prose th {
-    background: #27272a;
-  }
+html.dark .prose th {
+  background-color: #27272a;
 }

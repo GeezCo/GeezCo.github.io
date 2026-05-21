@@ -2,23 +2,64 @@
 import { site } from "../site.config";
 ---
 
-<footer class="bg-zinc-100 dark:bg-zinc-800/50 border-t border-zinc-200 dark:border-zinc-800 py-8 mt-12">
-  <div class="max-w-5xl mx-auto px-4 sm:px-6">
-    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-      <div class="text-zinc-500 dark:text-zinc-400 text-sm">
-        © {new Date().getFullYear()} {site.author}
-      </div>
-      <div class="flex items-center gap-4 text-sm">
-        <a href="/rss.xml" class="text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-indigo-400">
-          RSS
-        </a>
-        <a href="/sponsor" class="text-amber-500 hover:text-amber-600 dark:text-amber-400">
-          ☕ 赞赏支持
-        </a>
-        <a href="https://buymeacoffee.com/wincy" target="_blank" rel="noopener" class="text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-indigo-400">
-          Buy Me a Coffee
-        </a>
-      </div>
+<footer class="footer">
+  <div class="footer-content">
+    <div class="copyright">
+      © {new Date().getFullYear()} {site.author}
+    </div>
+    <div class="footer-links">
+      <a href="/rss.xml">RSS</a>
+      <a href="/sponsor">☕ 赞赏</a>
+      <a href="https://buymeacoffee.com/wincy" target="_blank" rel="noopener">Buy Me a Coffee</a>
     </div>
   </div>
 </footer>
+
+<style>
+  .footer {
+    background-color: #f4f4f5;
+    border-top: 1px solid #e4e4e7;
+    padding: 2rem 1rem;
+    margin-top: 3rem;
+  }
+  :global(html.dark) .footer {
+    background-color: #27272a;
+    border-top-color: #3f3f46;
+  }
+  .footer-content {
+    max-width: 64rem;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+  .copyright {
+    color: #71717a;
+    font-size: 0.875rem;
+  }
+  :global(html.dark) .copyright {
+    color: #a1a1aa;
+  }
+  .footer-links {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.875rem;
+  }
+  .footer-links a {
+    color: #71717a;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover {
+    color: #6366f1;
+  }
+  :global(html.dark) .footer-links a {
+    color: #a1a1aa;
+  }
+  :global(html.dark) .footer-links a:hover {
+    color: #818cf8;
+  }
+  .footer-links a:nth-child(2) {
+    color: #f59e0b;
+  }
+</style>

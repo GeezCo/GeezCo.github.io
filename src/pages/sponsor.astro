@@ -3,63 +3,166 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="赞赏支持" description="支持作者的创作">
-  <section class="bg-gradient-to-br from-amber-50 via-white to-orange-50 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-800 py-16">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6">
-      <div class="text-center mb-12">
-        <h1 class="text-3xl sm:text-4xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
-          ☕ 赞赏支持
-        </h1>
-        <p class="text-lg text-zinc-600 dark:text-zinc-400 max-w-xl mx-auto">
-          如果我的文章对你有帮助，欢迎支持我的创作。感谢你的鼓励！
-        </p>
-      </div>
+  <section class="sponsor-page">
+    <div class="sponsor-header">
+      <h1>☕ 赞赏支持</h1>
+      <p>如果我的文章对你有帮助，欢迎支持我的创作。感谢你的鼓励！</p>
+    </div>
 
-      <!-- 国内支付 -->
-      <div class="bg-white dark:bg-zinc-800/70 rounded-2xl shadow-lg p-8 mb-8">
-        <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-6 text-center">
-          国内用户
-        </h2>
-        <div class="grid sm:grid-cols-2 gap-8">
-          <!-- 支付宝 -->
-          <div class="text-center">
-            <div class="bg-zinc-100 dark:bg-zinc-700/50 p-4 rounded-xl inline-block mb-3">
-              <img src="/images/alipay.jpeg" alt="支付宝赞赏码" class="w-48 h-48 object-contain rounded-lg" />
-            </div>
-            <p class="text-sm text-zinc-500 dark:text-zinc-400">支付宝扫码赞赏</p>
+    <div class="sponsor-domestic">
+      <h2>国内用户</h2>
+      <div class="qr-grid">
+        <div class="qr-item">
+          <div class="qr-wrapper">
+            <img src="/images/alipay.jpeg" alt="支付宝赞赏码" />
           </div>
-
-          <!-- 微信 -->
-          <div class="text-center">
-            <div class="bg-zinc-100 dark:bg-zinc-700/50 p-4 rounded-xl inline-block mb-3">
-              <img src="/images/wechat.jpeg" alt="微信赞赏码" class="w-48 h-48 object-contain rounded-lg" />
-            </div>
-            <p class="text-sm text-zinc-500 dark:text-zinc-400">微信扫码赞赏</p>
+          <p>支付宝扫码赞赏</p>
+        </div>
+        <div class="qr-item">
+          <div class="qr-wrapper">
+            <img src="/images/wechat.jpeg" alt="微信赞赏码" />
           </div>
+          <p>微信扫码赞赏</p>
         </div>
       </div>
-
-      <!-- 海外用户 -->
-      <div class="bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-zinc-700/50 dark:to-zinc-700/50 rounded-2xl p-8 text-center">
-        <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
-          🌍 海外用户
-        </h2>
-        <a
-          href="https://buymeacoffee.com/wincy"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-zinc-900 px-8 py-4 rounded-xl font-semibold transition-colors shadow-md"
-        >
-          <span class="text-xl">☕</span> Buy Me a Coffee
-        </a>
-        <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-4">
-          支持 PayPal / Stripe 支付
-        </p>
-      </div>
-
-      <!-- 感谢语 -->
-      <div class="text-center mt-12 text-zinc-500 dark:text-zinc-400">
-        <p>每一份支持都是对我的鼓励，感谢你！🙏</p>
-      </div>
     </div>
+
+    <div class="sponsor-intl">
+      <h2>🌍 海外用户</h2>
+      <a href="https://buymeacoffee.com/wincy" target="_blank" rel="noopener" class="bmc-btn">
+        ☕ Buy Me a Coffee
+      </a>
+      <p>支持 PayPal / Stripe 支付</p>
+    </div>
+
+    <p class="thanks">每一份支持都是对我的鼓励，感谢你！🙏</p>
   </section>
 </BaseLayout>
+
+<style>
+  .sponsor-page {
+    background: linear-gradient(to bottom right, #fef3c7, #ffffff, #ffedd5);
+    padding: 4rem 1rem;
+    text-align: center;
+  }
+  :global(html.dark) .sponsor-page {
+    background: linear-gradient(to bottom right, #18181b, #18181b, #27272a);
+  }
+  .sponsor-header {
+    max-width: 48rem;
+    margin: 0 auto 3rem;
+  }
+  .sponsor-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #18181b;
+    margin-bottom: 1rem;
+  }
+  :global(html.dark) .sponsor-header h1 {
+    color: #fafafa;
+  }
+  .sponsor-header p {
+    font-size: 1.125rem;
+    color: #71717a;
+  }
+  :global(html.dark) .sponsor-header p {
+    color: #a1a1aa;
+  }
+  .sponsor-domestic {
+    max-width: 56rem;
+    margin: 0 auto 2rem;
+    background-color: #ffffff;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  :global(html.dark) .sponsor-domestic {
+    background-color: rgba(39, 39, 42, 0.7);
+  }
+  .sponsor-domestic h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #18181b;
+    margin-bottom: 1.5rem;
+  }
+  :global(html.dark) .sponsor-domestic h2 {
+    color: #fafafa;
+  }
+  .qr-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+  .qr-wrapper {
+    background-color: #f4f4f5;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    display: inline-block;
+  }
+  :global(html.dark) .qr-wrapper {
+    background-color: #27272a;
+  }
+  .qr-wrapper img {
+    width: 12rem;
+    height: 12rem;
+    object-fit: contain;
+    border-radius: 0.5rem;
+  }
+  .qr-item p {
+    color: #71717a;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+  }
+  :global(html.dark) .qr-item p {
+    color: #a1a1aa;
+  }
+  .sponsor-intl {
+    max-width: 56rem;
+    margin: 0 auto;
+    background: linear-gradient(to right, #fef3c7, #ffedd5);
+    border-radius: 1rem;
+    padding: 2rem;
+  }
+  :global(html.dark) .sponsor-intl {
+    background: rgba(39, 39, 42, 0.5);
+  }
+  .sponsor-intl h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #18181b;
+    margin-bottom: 1rem;
+  }
+  :global(html.dark) .sponsor-intl h2 {
+    color: #fafafa;
+  }
+  .bmc-btn {
+    background-color: #fbbf24;
+    color: #18181b;
+    padding: 1rem 2rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 1.125rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s, transform 0.2s;
+    display: inline-block;
+  }
+  .bmc-btn:hover {
+    background-color: #f59e0b;
+    transform: translateY(-2px);
+  }
+  .sponsor-intl > p {
+    color: #71717a;
+    font-size: 0.875rem;
+    margin-top: 1rem;
+  }
+  :global(html.dark) .sponsor-intl > p {
+    color: #a1a1aa;
+  }
+  .thanks {
+    color: #71717a;
+    margin-top: 3rem;
+  }
+  :global(html.dark) .thanks {
+    color: #a1a1aa;
+  }
+</style>

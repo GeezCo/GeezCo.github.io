@@ -3,12 +3,10 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="搜索" description="站内搜索">
-  <section class="bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-800 py-16">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6">
-      <h1 class="text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-8 text-center">
-        🔍 搜索文章
-      </h1>
-      <div id="search" class="bg-white dark:bg-zinc-800/70 rounded-2xl shadow-lg p-6"></div>
+  <section class="search-page">
+    <div class="search-container">
+      <h1>🔍 搜索文章</h1>
+      <div id="search"></div>
     </div>
   </section>
 </BaseLayout>
@@ -22,3 +20,37 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     showImages: false,
   });
 </script>
+
+<style>
+  .search-page {
+    background: linear-gradient(to bottom right, #eef2ff, #ffffff, #f3e8ff);
+    padding: 4rem 1rem;
+    min-height: 60vh;
+  }
+  :global(html.dark) .search-page {
+    background: linear-gradient(to bottom right, #18181b, #18181b, #27272a);
+  }
+  .search-container {
+    max-width: 56rem;
+    margin: 0 auto;
+  }
+  .search-container h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #18181b;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  :global(html.dark) .search-container h1 {
+    color: #fafafa;
+  }
+  #search {
+    background-color: #ffffff;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  :global(html.dark) #search {
+    background-color: rgba(39, 39, 42, 0.7);
+  }
+</style>

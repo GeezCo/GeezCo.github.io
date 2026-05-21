@@ -10,98 +10,222 @@ const recentPosts = sortedPosts.slice(0, 6);
 ---
 
 <BaseLayout title={site.title} description={site.description}>
-  <!-- Hero 区域 -->
-  <section class="bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-800 py-16 sm:py-24">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6">
-      <div class="text-center">
-        <h1 class="text-4xl sm:text-5xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
-          {site.title}
-        </h1>
-        <p class="text-lg sm:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto mb-8">
-          {site.description}
-        </p>
-        <div class="flex justify-center gap-4">
-          <a href="/search" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-            <span>🔍</span> 搜索文章
-          </a>
-          <a href="/about" class="inline-flex items-center gap-2 bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-zinc-900 dark:text-zinc-100 px-6 py-3 rounded-lg font-medium transition-colors">
-            <span>👋</span> 了解更多
-          </a>
-        </div>
+  <section class="hero">
+    <div class="hero-content">
+      <h1>{site.title}</h1>
+      <p>{site.description}</p>
+      <div class="hero-buttons">
+        <a href="/search" class="btn-primary">🔍 搜索文章</a>
+        <a href="/about" class="btn-secondary">👋 了解更多</a>
       </div>
     </div>
   </section>
 
-  <!-- 最新文章 -->
-  <section class="py-12 sm:py-16">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6">
-      <div class="flex items-center justify-between mb-8">
-        <h2 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-          最新文章
-        </h2>
-        <span class="text-sm text-zinc-500 dark:text-zinc-400">
-          共 {sortedPosts.length} 篇
-        </span>
-      </div>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {recentPosts.map((post) => (
-          <PostCard
-            title={post.data.title}
-            description={post.data.description}
-            pubDate={post.data.pubDate}
-            slug={post.id.replace(/\.md$/, "")}
-            tags={post.data.tags}
-          />
-        ))}
-      </div>
-
-      <!-- 查看更多 -->
-      {sortedPosts.length > 6 && (
-        <div class="text-center mt-12">
-          <details class="inline-block">
-            <summary class="cursor-pointer text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium">
-              查看全部文章 ({sortedPosts.length} 篇)
-            </summary>
-            <div class="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {sortedPosts.slice(6).map((post) => (
-                <PostCard
-                  title={post.data.title}
-                  description={post.data.description}
-                  pubDate={post.data.pubDate}
-                  slug={post.id.replace(/\.md$/, "")}
-                  tags={post.data.tags}
-                />
-              ))}
-            </div>
-          </details>
-        </div>
-      )}
+  <section class="posts-section">
+    <div class="section-header">
+      <h2>最新文章</h2>
+      <span>共 {sortedPosts.length} 篇</span>
     </div>
+    <div class="posts-grid">
+      {recentPosts.map((post) => (
+        <PostCard
+          title={post.data.title}
+          description={post.data.description}
+          pubDate={post.data.pubDate}
+          slug={post.id.replace(/\.md$/, "")}
+          tags={post.data.tags}
+        />
+      ))}
+    </div>
+
+    {sortedPosts.length > 6 && (
+      <details class="more-posts">
+        <summary>查看全部文章 ({sortedPosts.length} 篇)</summary>
+        <div class="posts-grid more">
+          {sortedPosts.slice(6).map((post) => (
+            <PostCard
+              title={post.data.title}
+              description={post.data.description}
+              pubDate={post.data.pubDate}
+              slug={post.id.replace(/\.md$/, "")}
+              tags={post.data.tags}
+            />
+          ))}
+        </div>
+      </details>
+    )}
   </section>
 
-  <!-- 统计信息 -->
-  <section class="bg-zinc-100 dark:bg-zinc-800/50 py-8">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6">
-      <div class="grid grid-cols-3 gap-8 text-center">
-        <div>
-          <div class="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
-            {sortedPosts.length}
-          </div>
-          <div class="text-sm text-zinc-500 dark:text-zinc-400">篇文章</div>
-        </div>
-        <div>
-          <div class="text-3xl font-bold text-purple-600 dark:text-purple-400">
-            {new Set(sortedPosts.flatMap(p => p.data.tags)).size}
-          </div>
-          <div class="text-sm text-zinc-500 dark:text-zinc-400">个标签</div>
-        </div>
-        <div>
-          <div class="text-3xl font-bold text-amber-500">
-            2026
-          </div>
-          <div class="text-sm text-zinc-500 dark:text-zinc-400">创建年份</div>
-        </div>
-      </div>
+  <section class="stats">
+    <div class="stat">
+      <div class="stat-num">{sortedPosts.length}</div>
+      <div class="stat-label">篇文章</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">{new Set(sortedPosts.flatMap(p => p.data.tags)).size}</div>
+      <div class="stat-label">个标签</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">2026</div>
+      <div class="stat-label">创建年份</div>
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  .hero {
+    background: linear-gradient(to bottom right, #eef2ff, #ffffff, #f3e8ff);
+    padding: 4rem 1rem 6rem;
+    text-align: center;
+  }
+  :global(html.dark) .hero {
+    background: linear-gradient(to bottom right, #18181b, #18181b, #27272a);
+  }
+  .hero-content {
+    max-width: 48rem;
+    margin: 0 auto;
+  }
+  .hero h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #18181b;
+    margin-bottom: 1rem;
+  }
+  :global(html.dark) .hero h1 {
+    color: #fafafa;
+  }
+  .hero p {
+    font-size: 1.25rem;
+    color: #71717a;
+    margin-bottom: 2rem;
+  }
+  :global(html.dark) .hero p {
+    color: #a1a1aa;
+  }
+  .hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+  }
+  .btn-primary {
+    background-color: #6366f1;
+    color: #ffffff;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+  }
+  .btn-primary:hover {
+    background-color: #4f46e5;
+  }
+  .btn-secondary {
+    background-color: #e4e4e7;
+    color: #18181b;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+  }
+  .btn-secondary:hover {
+    background-color: #d4d4d8;
+  }
+  :global(html.dark) .btn-secondary {
+    background-color: #3f3f46;
+    color: #fafafa;
+  }
+  :global(html.dark) .btn-secondary:hover {
+    background-color: #52525b;
+  }
+  .posts-section {
+    max-width: 64rem;
+    margin: 0 auto;
+    padding: 3rem 1rem;
+  }
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  .section-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #18181b;
+  }
+  :global(html.dark) .section-header h2 {
+    color: #fafafa;
+  }
+  .section-header span {
+    color: #71717a;
+    font-size: 0.875rem;
+  }
+  :global(html.dark) .section-header span {
+    color: #a1a1aa;
+  }
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1.5rem;
+  }
+  @media (min-width: 640px) {
+    .posts-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1024px) {
+    .posts-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .more-posts {
+    text-align: center;
+    margin-top: 3rem;
+  }
+  .more-posts summary {
+    color: #6366f1;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  :global(html.dark) .more-posts summary {
+    color: #818cf8;
+  }
+  .more-posts .more {
+    margin-top: 1.5rem;
+  }
+  .stats {
+    background-color: #f4f4f5;
+    padding: 2rem 1rem;
+    text-align: center;
+  }
+  :global(html.dark) .stats {
+    background-color: #27272a;
+  }
+  .stat {
+    display: inline-block;
+    margin: 0 2rem;
+  }
+  .stat-num {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #6366f1;
+  }
+  :global(html.dark) .stat-num {
+    color: #818cf8;
+  }
+  .stat:nth-child(2) .stat-num {
+    color: #8b5cf6;
+  }
+  :global(html.dark) .stat:nth-child(2) .stat-num {
+    color: #a78bfa;
+  }
+  .stat:nth-child(3) .stat-num {
+    color: #f59e0b;
+  }
+  .stat-label {
+    color: #71717a;
+    font-size: 0.875rem;
+  }
+  :global(html.dark) .stat-label {
+    color: #a1a1aa;
+  }
+</style>

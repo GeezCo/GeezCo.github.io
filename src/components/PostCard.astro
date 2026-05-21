@@ -15,29 +15,84 @@ const formattedDate = pubDate.toLocaleDateString("zh-CN", {
 });
 ---
 
-<article class="group relative bg-white dark:bg-zinc-800/50 rounded-xl p-6 shadow-sm hover:shadow-md border border-zinc-200 dark:border-zinc-700/50 transition-all duration-300">
-  <a href={`/blog/${slug}`} class="block">
-    <div class="flex flex-col gap-3">
-      <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-2">
-        {title}
-      </h2>
-      {description && (
-        <p class="text-zinc-500 dark:text-zinc-400 text-sm line-clamp-2">
-          {description}
-        </p>
+<article class="post-card">
+  <a href={`/blog/${slug}`}>
+    <h2 class="post-title">{title}</h2>
+    {description && <p class="post-desc">{description}</p>}
+    <div class="post-meta">
+      <time>{formattedDate}</time>
+      {tags.length > 0 && (
+        <div class="post-tags">
+          {tags.slice(0, 2).map((tag) => (
+            <span>{tag}</span>
+          ))}
+        </div>
       )}
-      <div class="flex items-center justify-between text-xs text-zinc-400 dark:text-zinc-500">
-        <time>{formattedDate}</time>
-        {tags.length > 0 && (
-          <div class="flex gap-1">
-            {tags.slice(0, 2).map((tag) => (
-              <span class="bg-zinc-100 dark:bg-zinc-700 px-2 py-0.5 rounded">
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   </a>
 </article>
+
+<style>
+  .post-card {
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    border: 1px solid #e4e4e7;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s;
+  }
+  .post-card:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  :global(html.dark) .post-card {
+    background-color: rgba(39, 39, 42, 0.5);
+    border-color: rgba(63, 63, 70, 0.5);
+  }
+  .post-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #18181b;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+  }
+  :global(html.dark) .post-title {
+    color: #fafafa;
+  }
+  .post-card a:hover .post-title {
+    color: #6366f1;
+  }
+  :global(html.dark) .post-card a:hover .post-title {
+    color: #818cf8;
+  }
+  .post-desc {
+    color: #71717a;
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+  }
+  :global(html.dark) .post-desc {
+    color: #a1a1aa;
+  }
+  .post-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: #a1a1aa;
+  }
+  :global(html.dark) .post-meta {
+    color: #71717a;
+  }
+  .post-tags {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .post-tags span {
+    background-color: #f4f4f5;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+  }
+  :global(html.dark) .post-tags span {
+    background-color: #3f3f46;
+  }
+</style>

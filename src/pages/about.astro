@@ -4,38 +4,126 @@ import { site } from "../site.config";
 ---
 
 <BaseLayout title="关于" description="关于本博客">
-  <section class="bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-800 py-16">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6">
-      <div class="bg-white dark:bg-zinc-800/70 rounded-2xl shadow-lg p-8 sm:p-12">
-        <h1 class="text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-6">
-          关于我
-        </h1>
-
-        <div class="prose prose-zinc dark:prose-invert max-w-none">
-          <p class="text-lg text-zinc-600 dark:text-zinc-400 mb-6">
-            欢迎来到 <strong class="text-indigo-600 dark:text-indigo-400">{site.title}</strong>！
-          </p>
-
-          <p class="text-zinc-700 dark:text-zinc-300 mb-4">
-            这里是我记录技术学习、生活感悟的地方。主要分享：
-          </p>
-
-          <ul class="list-disc pl-6 text-zinc-700 dark:text-zinc-300 space-y-2 mb-6">
-            <li>后端开发（Java、Go、Spring）</li>
-            <li>数据库与缓存（MySQL、Redis、ES）</li>
-            <li>技术面试经验</li>
-            <li>其他感兴趣的技术话题</li>
-          </ul>
-
-          <div class="bg-zinc-100 dark:bg-zinc-700/50 rounded-lg p-6 mt-8">
-            <h3 class="text-lg font-semibold mb-3">联系方式</h3>
-            <div class="flex flex-wrap gap-4">
-              <a href="/sponsor" class="text-amber-600 hover:text-amber-700 dark:text-amber-400">☕ 赞赏支持</a>
-              <a href="https://buymeacoffee.com/wincy" target="_blank" class="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400">Buy Me a Coffee</a>
-            </div>
-          </div>
+  <section class="about-page">
+    <article class="about-card">
+      <h1>关于我</h1>
+      <p class="intro">欢迎来到 <strong class="site-name">{site.title}</strong>！</p>
+      <p class="desc">这里是我记录技术学习、生活感悟的地方。主要分享：</p>
+      <ul class="topics">
+        <li>后端开发（Java、Go、Spring）</li>
+        <li>数据库与缓存（MySQL、Redis、ES）</li>
+        <li>技术面试经验</li>
+        <li>其他感兴趣的技术话题</li>
+      </ul>
+      <div class="contact">
+        <h3>联系方式</h3>
+        <div class="contact-links">
+          <a href="/sponsor">☕ 赞赏支持</a>
+          <a href="https://buymeacoffee.com/wincy" target="_blank">Buy Me a Coffee</a>
         </div>
       </div>
-    </div>
+    </article>
   </section>
 </BaseLayout>
+
+<style>
+  .about-page {
+    background: linear-gradient(to bottom right, #eef2ff, #ffffff, #f3e8ff);
+    padding: 4rem 1rem;
+  }
+  :global(html.dark) .about-page {
+    background: linear-gradient(to bottom right, #18181b, #18181b, #27272a);
+  }
+  .about-card {
+    max-width: 56rem;
+    margin: 0 auto;
+    background-color: #ffffff;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  :global(html.dark) .about-card {
+    background-color: rgba(39, 39, 42, 0.7);
+  }
+  .about-card h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #18181b;
+    margin-bottom: 1.5rem;
+  }
+  :global(html.dark) .about-card h1 {
+    color: #fafafa;
+  }
+  .intro {
+    font-size: 1.25rem;
+    color: #71717a;
+    margin-bottom: 1rem;
+  }
+  :global(html.dark) .intro {
+    color: #a1a1aa;
+  }
+  .site-name {
+    color: #6366f1;
+  }
+  :global(html.dark) .site-name {
+    color: #818cf8;
+  }
+  .desc {
+    color: #3f3f46;
+    margin-bottom: 1rem;
+  }
+  :global(html.dark) .desc {
+    color: #d4d4d8;
+  }
+  .topics {
+    color: #3f3f46;
+    margin-bottom: 2rem;
+    padding-left: 1.5rem;
+  }
+  :global(html.dark) .topics {
+    color: #d4d4d8;
+  }
+  .topics li {
+    margin-bottom: 0.5rem;
+  }
+  .contact {
+    background-color: #f4f4f5;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+  }
+  :global(html.dark) .contact {
+    background-color: #27272a;
+  }
+  .contact h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #18181b;
+    margin-bottom: 0.75rem;
+  }
+  :global(html.dark) .contact h3 {
+    color: #fafafa;
+  }
+  .contact-links {
+    display: flex;
+    gap: 1rem;
+  }
+  .contact-links a {
+    color: #f59e0b;
+    transition: color 0.2s;
+  }
+  .contact-links a:hover {
+    color: #d97706;
+  }
+  :global(html.dark) .contact-links a {
+    color: #fbbf24;
+  }
+  :global(html.dark) .contact-links a:hover {
+    color: #f59e0b;
+  }
+  .contact-links a:nth-child(2) {
+    color: #6366f1;
+  }
+  :global(html.dark) .contact-links a:nth-child(2) {
+    color: #818cf8;
+  }
+</style>
