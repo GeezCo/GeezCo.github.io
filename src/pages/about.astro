@@ -81,9 +81,11 @@ import { site } from "../site.config";
   const TOKEN_KEY = 'resume_token';
 
   // 检查是否已有有效 token
-  async function checkToken(token) {
+  async function checkToken(token: string) {
     try {
-      const res = await fetch(`/api/resume-download?token=${encodeURIComponent(token)}`, { method: 'HEAD' });
+      const res = await fetch('/api/resume-download?lang=zh', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
       return res.ok;
     } catch {
       return false;
@@ -97,17 +99,57 @@ import { site } from "../site.config";
     }
   }
 
-  function showUnlocked(token) {
+  async function downloadResume(lang: string) {
+    const token = sessionStorage.getItem(TOKEN_KEY);
+    if (!token) {
+      locked.classList.remove('hidden');
+      unlocked.classList.add('hidden');
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/resume-download?lang=${lang}`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (res.status === 401) {
+        sessionStorage.removeItem(TOKEN_KEY);
+        locked.classList.remove('hidden');
+        unlocked.classList.add('hidden');
+        expiredEl.classList.remove('hidden');
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = lang === 'en' ? 'resume-en.pdf' : 'resume.pdf';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      // 网络错误，静默处理
+    }
+  }
+
+  function showUnlocked(_token: string) {
     locked.classList.add('hidden');
     unlocked.classList.remove('hidden');
     expiredEl.classList.add('hidden');
-    downloadLinkZh.href = `/api/resume-download?token=${encodeURIComponent(token)}&lang=zh`;
-    downloadLinkEn.href = `/api/resume-download?token=${encodeURIComponent(token)}&lang=en`;
   }
 
-  function showError() {
+  function showError(msg?: string) {
+    if (msg) errorEl.textContent = msg;
+    else errorEl.textContent = '\u5bc6\u7801\u9519\u8bef\uff0c\u8bf7\u91cd\u8bd5';
     errorEl.classList.remove('hidden');
   }
+
+  downloadLinkZh.addEventListener('click', (e) => {
+    e.preventDefault();
+    downloadResume('zh');
+  });
+  downloadLinkEn.addEventListener('click', (e) => {
+    e.preventDefault();
+    downloadResume('en');
+  });
 
   submitBtn.addEventListener('click', async () => {
     errorEl.classList.add('hidden');
@@ -120,6 +162,12 @@ import { site } from "../site.config";
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),
       });
+
+      if (res.status === 429) {
+        const data = await res.json();
+        showError(data.error || '\u8bf7\u6c42\u8fc7\u4e8e\u9891\u7e41');
+        return;
+      }
 
       if (!res.ok) {
         showError();
