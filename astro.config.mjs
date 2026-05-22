@@ -14,7 +14,9 @@ const siteUrl = process.env.SITE_URL
 export default defineConfig({
   site: siteUrl,
   output: 'static',
-  adapter: vercel({}),
+  adapter: vercel({
+    includeFiles: ['src/private/resume.pdf.enc', 'src/private/resume-en.pdf.enc'],
+  }),
   integrations: [sitemap()],
   markdown: {
     remarkPlugins: [remarkGfm],
