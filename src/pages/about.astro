@@ -111,11 +111,16 @@ import { site } from "../site.config";
       const res = await fetch(`/api/resume-download?lang=${lang}`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
-      if (res.status === 401) {
-        sessionStorage.removeItem(TOKEN_KEY);
-        locked.classList.remove('hidden');
-        unlocked.classList.add('hidden');
-        expiredEl.classList.remove('hidden');
+      if (!res.ok) {
+        if (res.status === 401) {
+          sessionStorage.removeItem(TOKEN_KEY);
+          locked.classList.remove('hidden');
+          unlocked.classList.add('hidden');
+          expiredEl.classList.remove('hidden');
+        } else {
+          expiredEl.textContent = '下载失败，请稍后重试';
+          expiredEl.classList.remove('hidden');
+        }
         return;
       }
       const blob = await res.blob();
@@ -126,7 +131,8 @@ import { site } from "../site.config";
       a.click();
       URL.revokeObjectURL(url);
     } catch {
-      // 网络错误，静默处理
+      expiredEl.textContent = '下载失败，请稍后重试';
+      expiredEl.classList.remove('hidden');
     }
   }
 
