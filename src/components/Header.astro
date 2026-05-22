@@ -8,7 +8,13 @@ import ThemeToggle from "./ThemeToggle.astro";
     <a href="/" class="logo">{site.title}</a>
     <div class="nav-links">
       <a href="/">首页</a>
-      <a href="/search">搜索</a>
+      <button class="search-trigger" onclick="window.__searchOpen?.()" title="搜索 (Ctrl+K)">
+        <svg class="search-trigger-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <span class="search-trigger-text">搜索</span>
+        <kbd class="search-trigger-kbd">⌘K</kbd>
+      </button>
       <a href="/about">关于</a>
       <a href="/sponsor" class="highlight">赞赏</a>
       <a href="/rss.xml" target="_blank">RSS</a>
@@ -78,6 +84,60 @@ import ThemeToggle from "./ThemeToggle.astro";
   }
   .nav-links .highlight:hover {
     color: #d97706;
+  }
+
+  /* 搜索按钮 */
+  .search-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #f4f4f5;
+    border: 1px solid #e4e4e7;
+    border-radius: 0.5rem;
+    padding: 0.35rem 0.6rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: #71717a;
+    font-family: inherit;
+    transition: background-color 0.2s, border-color 0.2s;
+  }
+  .search-trigger:hover {
+    background: #e4e4e7;
+    border-color: #d4d4d8;
+  }
+  :global(html.dark) .search-trigger {
+    background: #3f3f46;
+    border-color: #52525b;
+    color: #a1a1aa;
+  }
+  :global(html.dark) .search-trigger:hover {
+    background: #52525b;
+    border-color: #71717a;
+  }
+  .search-trigger-icon {
+    flex-shrink: 0;
+  }
+  .search-trigger-kbd {
+    font-size: 0.65rem;
+    background: #ffffff;
+    border: 1px solid #e4e4e7;
+    border-radius: 0.25rem;
+    padding: 0.1rem 0.3rem;
+    color: #a1a1aa;
+    white-space: nowrap;
+  }
+  :global(html.dark) .search-trigger-kbd {
+    background: #18181b;
+    border-color: #3f3f46;
+    color: #71717a;
+  }
+  @media (max-width: 640px) {
+    .search-trigger-text {
+      display: none;
+    }
+    .search-trigger-kbd {
+      display: none;
+    }
   }
 
   /* 移动端适配 */

@@ -3,6 +3,7 @@ import "../styles/global.css";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import Analytics from "../components/Analytics.astro";
+import SearchModal from "../components/SearchModal.astro";
 import { site } from "../site.config";
 
 interface Props {
@@ -58,5 +59,8 @@ const { title = site.title, description = site.description } = Astro.props;
       <slot />
     </main>
     <Footer />
+    <SearchModal />
+    <!-- Pagefind 搜索（全站可用） -->
+    <script src="/pagefind/pagefind.js" is:inline></script>
   </body>
 </html>
