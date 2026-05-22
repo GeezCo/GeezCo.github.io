@@ -2,7 +2,7 @@ import { createHmac } from "node:crypto";
 
 export const prerender = false;
 
-const SECRET = import.meta.env.RESUME_SECRET;
+const SECRET = import.meta.env.SITE_SECRET;
 const PASSWORD = import.meta.env.RESUME_PASSWORD;
 
 // 内存 IP 频率限制

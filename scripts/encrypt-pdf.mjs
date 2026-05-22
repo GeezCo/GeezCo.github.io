@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // scripts/encrypt-pdf.mjs
-// 用法: RESUME_SECRET="xxx" node scripts/encrypt-pdf.mjs
+// 用法: SITE_SECRET="xxx" node scripts/encrypt-pdf.mjs
 // 从 src/private/ 读取 resume.pdf，输出 resume.pdf.enc 到同目录
 
 import { createHash, randomBytes, createCipheriv } from "node:crypto";
@@ -10,13 +10,13 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const SECRET = process.env.RESUME_SECRET;
+const SECRET = process.env.SITE_SECRET;
 if (!SECRET) {
-  console.error("错误: 请设置 RESUME_SECRET 环境变量");
+  console.error("错误: 请设置 SITE_SECRET 环境变量");
   process.exit(1);
 }
 
-// 从 RESUME_SECRET 派生 256-bit AES 密钥
+// 从 SITE_SECRET 派生 256-bit AES 密钥
 const key = createHash("sha256").update(SECRET).digest();
 
 function encrypt(inputPath, outputPath) {

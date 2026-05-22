@@ -4,9 +4,9 @@ import path from "node:path";
 
 export const prerender = false;
 
-const SECRET = import.meta.env.RESUME_SECRET;
+const SECRET = import.meta.env.SITE_SECRET;
 
-// 从 RESUME_SECRET 派生 AES-256 密钥
+// 从 SITE_SECRET 派生 AES-256 密钥
 let aesKey: Buffer | null = null;
 function getAesKey(): Buffer {
   if (!aesKey) {
