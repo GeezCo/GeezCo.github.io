@@ -70,6 +70,9 @@ const recentPosts = sortedPosts.slice(0, 6);
       <div class="stat-label">创建年份</div>
     </div>
   </section>
+  <a href="/tools" class="tool-float" title="工具箱">
+    <span class="tool-icon">🛠️</span>
+  </a>
 </BaseLayout>
 
 <style>
@@ -227,5 +230,41 @@ const recentPosts = sortedPosts.slice(0, 6);
   }
   :global(html.dark) .stat-label {
     color: #a1a1aa;
+  }
+
+  /* 悬浮工具箱按钮 */
+  .tool-float {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 100;
+    width: 3rem;
+    height: 3rem;
+    background: #6366f1;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+    font-size: 1.25rem;
+    text-decoration: none;
+  }
+  .tool-float:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+    background: #4f46e5;
+  }
+  :global(html.dark) .tool-float {
+    background: #818cf8;
+    box-shadow: 0 4px 12px rgba(129, 140, 248, 0.4);
+  }
+  :global(html.dark) .tool-float:hover {
+    background: #6366f1;
+  }
+  .tool-icon {
+    display: inline-block;
+    line-height: 1;
   }
 </style>
