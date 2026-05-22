@@ -15,7 +15,7 @@ export default defineConfig({
   site: siteUrl,
   output: 'static',
   adapter: vercel({
-    includeFiles: ['src/private/resume.pdf'],
+    includeFiles: ['src/private/resume.pdf', 'src/private/resume-en.pdf'],
   }),
   integrations: [sitemap()],
   markdown: {

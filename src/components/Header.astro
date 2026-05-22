@@ -79,4 +79,20 @@ import ThemeToggle from "./ThemeToggle.astro";
   .nav-links .highlight:hover {
     color: #d97706;
   }
+
+  /* 移动端适配 */
+  @media (max-width: 640px) {
+    .nav {
+      gap: 0.5rem;
+    }
+    .logo {
+      font-size: 1.1rem;
+    }
+    .nav-links {
+      gap: 0.6rem;
+    }
+    .nav-links a {
+      font-size: 0.75rem;
+    }
+  }
 </style>
