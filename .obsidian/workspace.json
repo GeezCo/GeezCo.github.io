@@ -1,0 +1,235 @@
+{
+  "main": {
+    "id": "d8e84d22a81f3bcb",
+    "type": "split",
+    "children": [
+      {
+        "id": "9a1ae16c76037d65",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "cbcb0c29ecdee1d3",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "src/content/blog/一些小记.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "一些小记"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "df3222e995bdce21",
+    "type": "split",
+    "children": [
+      {
+        "id": "b844915f8f25145d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "d168bfcdf850a8c5",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          },
+          {
+            "id": "7cd1e810864e071c",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "c5688122ca6462bf",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "书签"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "af31d488d7e4ae21",
+    "type": "split",
+    "children": [
+      {
+        "id": "3451dcc228fbf01f",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "49624061216e82db",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "src/content/blog/一些小记.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "一些小记 的反向链接列表"
+            }
+          },
+          {
+            "id": "a2c00e8764aa1e53",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "src/content/blog/一些小记.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "一些小记 的出链列表"
+            }
+          },
+          {
+            "id": "228fbb11911dcc07",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          },
+          {
+            "id": "4fcffe8f1e4d8fa8",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "添加笔记属性"
+            }
+          },
+          {
+            "id": "b1b280eba54e908c",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "src/content/blog/一些小记.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "一些小记 的大纲"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "bases:新建数据库": false
+    }
+  },
+  "active": "cbcb0c29ecdee1d3",
+  "lastOpenFiles": [
+    "dist/pagefind/pagefind.js",
+    "dist/pagefind/pagefind-entry.json",
+    "dist/pagefind/wasm.unknown.pagefind",
+    "dist/pagefind/pagefind-component-ui.css",
+    "dist/pagefind/pagefind-component-ui.js",
+    "dist/pagefind/pagefind-modular-ui.css",
+    "dist/pagefind/pagefind-ui.css",
+    "dist/pagefind/pagefind-modular-ui.js",
+    "dist/pagefind/pagefind-ui.js",
+    "dist/pagefind/pagefind-worker.js",
+    "dist/pagefind/pagefind-highlight.js",
+    "dist/images/wechat.jpeg",
+    "dist/images/9b420809-c290-4745-9c35-a39fd1eafdff.png",
+    "dist/images/alipay.jpeg",
+    "dist/images/be34b97d-1b48-4603-9462-8d638a554ccd.png",
+    "dist/favicon.svg",
+    "node_modules/@pagefind/darwin-arm64/README.md",
+    "node_modules/@shikijs/engine-javascript/README.md",
+    "node_modules/@astrojs/compiler/README.md",
+    "node_modules/@jridgewell/trace-mapping/README.md",
+    "node_modules/@jridgewell/remapping/README.md",
+    "node_modules/@jridgewell/sourcemap-codec/README.md",
+    "node_modules/@astrojs/internal-helpers/readme.md",
+    "node_modules/@rollup/pluginutils/README.md",
+    "node_modules/@clack/core/README.md",
+    "node_modules/@clack/core/CHANGELOG.md",
+    "node_modules/@img/colour/README.md",
+    "node_modules/@img/colour/LICENSE.md",
+    "node_modules/@babel/types/README.md",
+    "node_modules/rollup/node_modules/@types/estree/README.md",
+    "node_modules/@types/estree/README.md",
+    "node_modules/@capsizecss/unpack/README.md",
+    "node_modules/@esbuild/darwin-arm64/README.md",
+    "node_modules/@jridgewell/gen-mapping/README.md",
+    "node_modules/@astrojs/sitemap/README.md",
+    "node_modules/@astrojs/telemetry/README.md",
+    "node_modules/@astrojs/prism/README.md",
+    "node_modules/@clack/prompts/CHANGELOG.md",
+    "node_modules/@clack/prompts/README.md",
+    "node_modules/@astrojs/rss/README.md",
+    "node_modules/@alloc/quick-lru/readme.md",
+    "dist/client/images/wechat.jpeg",
+    "dist/client/images/be34b97d-1b48-4603-9462-8d638a554ccd.png",
+    "dist/client/images/alipay.jpeg",
+    "dist/client/images/9b420809-c290-4745-9c35-a39fd1eafdff.png",
+    "dist/client/favicon.svg"
+  ]
+}
