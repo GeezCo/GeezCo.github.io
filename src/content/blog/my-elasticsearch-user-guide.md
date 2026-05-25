@@ -1,222 +1,191 @@
 ---
-title: ElasticSearch 用户指南
-description: ElasticSearch 全文检索原理、索引库操作、Mapping 与 Settings 配置详解
-pubDate: '2026-05-15T08:29:00.000Z'
+title: ElasticSearch 用户指南：从索引原理到生产配置
+description: ES与MySQL的概念映射、Mapping与Settings配置、文档CRUD操作、分词器原理及IK分词器安装，适合ES入门到生产
+pubDate: '2023-02-09T08:29:00.000Z'
 tags:
   - ElasticSearch
   - 全文检索
 draft: false
 ---
 
-## 一、商品搜索专题
+## 为什么需要全文检索？
 
-### 1.1 传统搜索的问题
-
-大量数据检索时会产生索引失效问题：
-
-- `LIKE` 查询失效（如 `%小米%`）
-- `WHERE` 条件中 `OR` 左边是索引列、右边不是索引列会导致索引失效
-- `SELECT *` 滥用
-
-示例：
+### SQL LIKE 的边界
 
 ```sql
-SELECT * FROM goods WHERE title LIKE '%小米%';
+SELECT * FROM goods WHERE title LIKE '%小米手机%';
 ```
 
-数据量庞大时性能急剧下降。
+这条 SQL 在生产环境的真实表现：
+- `%` 开头导致索引失效，全表扫描
+- 数据量到达百万级别时，查询耗时从毫秒跳到秒级
+- 并发一上来，数据库连接池直接打满
 
-### 1.2 全文检索方案
+全文检索解决的不是"能不能搜"的问题，而是**能不能在数据量增长 100 倍后还能搜**的问题。
 
-#### 数据分类
+### 数据分类：搜索策略的分水岭
 
-| 类型 | 特点 | 示例 |
+| 类型 | 存储形态 | 搜索方式 |
+|------|---------|---------|
+| 结构化 | MySQL 行 → 固定列 | SQL `WHERE id = 123` |
+| 非结构化 | 文章正文、PDF、日志 | 全文检索 |
+
+结构化数据靠索引，非结构化数据靠分词 + 倒排索引。
+
+### 全文检索实现路线
+
+- Lucene：Java 全文检索工具包，偏底层，直接使用需要管理 IndexWriter/Searcher/TokenStream
+- Solr：Lucene 之上的搜索服务器，XML 配置驱动
+- ElasticSearch：Lucene 之上，JSON REST API + 分布式架构，实时搜索性能大幅优于 Solr
+
+三者关系类似：TCP 套接字(Lucene) → HTTP 服务器(Solr/ES)。ES 用 JSON over HTTP 取代了 Lucene 的 Java API。
+
+## 倒排索引：全文检索的核心数据结构
+
+```
+文档1: "小米手机很好用"
+文档2: "华为手机也不错"
+文档3: "小米笔记本性价比高"
+
+分词后建立倒排索引:
+  小米     → [文档1, 文档3]
+  手机     → [文档1, 文档2]
+  华为     → [文档2]
+  笔记本   → [文档3]
+  性价比   → [文档3]
+```
+
+正排索引是"文档→词"，倒排索引是"词→文档"。搜索时就变成了：输入"小米手机" → 拆成"小米"+"手机" → 分别查倒排列表 → 交集 = 文档1。
+
+## ES 与 MySQL 的概念映射
+
+| ES | MySQL | 说明 |
+|----|-------|------|
+| Index | Database | 索引库 = 数据库 |
+| Type（7.x 废弃） | Table | 8.x 中已完全移除 |
+| Document | Row | JSON 文档 = 一行数据 |
+| Field | Column | 字段 |
+| Mapping | Schema | 字段类型定义 |
+| Shard | 分表 | 水平拆分 |
+| Replica | 从库 | 副本 |
+
+ES 6.x 之前一个 Index 可以有多个 Type，7.x 开始逐步废弃，8.x 完全移除。现在的约定是一个 Index 只存一种类型的文档。
+
+## RESTful API 全掌握
+
+| 方法 | URL | 作用 |
+|------|-----|------|
+| PUT | `/my_index` | 创建索引 |
+| DELETE | `/my_index` | 删除索引 |
+| GET | `/my_index` | 查看索引信息 |
+| POST | `/my_index/_doc` | 新增文档（ES 自动生成 ID） |
+| PUT | `/my_index/_doc/1` | 新增或全量替换文档（指定 ID） |
+| POST | `/my_index/_update/1` | 部分更新文档 |
+| DELETE | `/my_index/_doc/1` | 删除文档 |
+| GET | `/my_index/_doc/1` | 按 ID 查询文档 |
+| POST | `/my_index/_search` | 搜索查询 |
+
+## Mapping 配置
+
+Mapping 定义了每个字段在索引中的行为。错误的 Mapping 会导致搜不出来、排序异常、内存暴增。
+
+```json
+{
+  "mappings": {
+    "properties": {
+      "id": { "type": "long" },
+      "title": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "search_analyzer": "ik_smart"
+      },
+      "price": { "type": "scaled_float", "scaling_factor": 100 },
+      "tags": { "type": "keyword" },
+      "created_at": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss" }
+    }
+  }
+}
+```
+
+### text vs keyword 的选择
+
+| 场景 | 类型 | 原因 |
 |------|------|------|
-| 结构化数据 | 固定格式、有限长度、类型固定 | 数据库数据 |
-| 非结构化数据 | 长度不固定、类型不固定、格式不固定 | 文本文件 |
+| 文章标题、正文（需要搜索） | text | 会被分词，支持全文搜索 |
+| 标签、分类（需要精确匹配） | keyword | 不分词，用于过滤/聚合/排序 |
+| 身份证号、手机号 | keyword | 不需要分词，用 term 精确查询 |
+| 邮箱地址 | keyword | 虽然含 `@` 但也应该是 keyword |
 
-#### 非结构化数据检索方案
+**关键原则**：如果字段需要被"搜"（用户输入关键词匹配），用 text。如果字段需要被"查"（精确匹配 + 聚合统计），用 keyword。一个字段可以同时有 text 和 keyword 两种类型（multi-field）。
 
-- **顺序扫描**：性能差
-- **全文检索**：划分词 → 建立索引 → 搜索索引
+### 字段属性
 
-全文检索是"空间换时间"的策略。
+- `index: true/false` — 是否建索引。不需要搜索的字段（如二进制数据）设为 false 节省磁盘
+- `store: true/false` — 是否存储原始值。默认 false，ES 用 `_source` 字段存全量 JSON，通常不需要单独 store
+- `doc_values: true/false` — 是否建立列式存储。用于排序和聚合，默认 true。text 字段默认 false
+- `enabled: true/false` — 整个 object 是否被索引。设为 false 则这个字段完全不可搜索
 
-#### 全文检索应用场景
+## Settings 配置
 
-- 搜索引擎（爬虫 + 分词 + 索引）
-- 站内搜索（电商、社交平台、论坛）
-- 磁盘文件搜索
+索引库级别的基础设置：
 
-#### 全文检索实现技术
+```json
+{
+  "settings": {
+    "number_of_shards": 3,
+    "number_of_replicas": 1,
+    "refresh_interval": "30s",
+    "max_result_window": 10000
+  }
+}
+```
 
-| 技术 | 说明 |
-|------|------|
-| Lucene | Java 全文检索工具包（底层） |
-| Solr | 基于 Lucene 的全文检索服务器 |
-| ElasticSearch | 基于 Lucene，实时搜索性能更好 |
+| 参数 | 说明 | 注意 |
+|------|------|------|
+| `number_of_shards` | 主分片数 | 创建后不可修改，预估好数据量 |
+| `number_of_replicas` | 副本数 | 可动态修改 |
+| `refresh_interval` | 刷新间隔 | 默认 1s，写入量大可调大 |
 
-### 1.3 全文检索流程
+分片数计算公式：`分片数 ≈ 数据量(GB) / 30`。单个分片建议 10-50GB。太少无法充分利用集群算力，太多增加 Master 节点管理开销。
 
-#### 创建索引
+## 分词器
 
-1. **采集数据**：来自网站、磁盘、文本等
-2. **分析数据**：关键词拆分、去标点、去停用词、大小写转换
-3. **创建文档对象**：封装为 Document（相当于数据库行）
-4. **创建索引库**：基于关键词（term）建立索引，存储关键词与 Document 的关系
-
-#### 查询索引
-
-1. **用户接口**：输入关键词或句子
-2. **封装查询条件**：分词处理，指定查询 field
-3. **执行查询**：在索引中查找关键词 → 找到 Document ID → 返回 Document
-4. **结果处理**：关键词高亮、分页、相关度排序
-
-![全文检索流程图](/images/be34b97d-1b48-4603-9462-8d638a554ccd.png)
-
-## 二、ES 核心概念
-
-### 2.1 与 MySQL 对应关系
-
-| ElasticSearch | MySQL |
-|---------------|-------|
-| 索引库 | Database |
-| Type（ES 7.x 已废弃） | Table |
-| Document | Row |
-| Field | Column |
-
-### 2.2 RESTful API
-
-基于 RESTful 接口管理索引库：
-
-| HTTP 方法 | 操作 |
-|-----------|------|
-| PUT / POST | 创建 |
-| DELETE | 删除 |
-| POST / PUT | 更新 |
-| GET | 查询 |
-
-URL 格式：
+### standard 分词器的局限
 
 ```text
-http://localhost:9200/{索引名称}
+输入："我爱北京天安门"
+standard 分词结果：我 | 爱 | 北 | 京 | 天 | 安 | 门
 ```
 
-## 三、Mapping 配置
+standard 分词器不认识中文词边界——把每个汉字当成一个 term。搜索"天安门"时，匹配的是"天"+"安"+"门"三个 term 的交集，噪音极大。
 
-Mapping 定义文档格式：字段名称、数据类型、是否索引、是否存储、是否分词等。
+### 安装 IK 分词器
 
-建议先定义 Mapping 再添加数据。
+```bash
+./bin/elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.17.0/elasticsearch-analysis-ik-7.17.0.zip
+```
 
-### 3.1 创建 Mapping
-
-**方法**：PUT
-
-**URL**：`http://192.168.57.10:9200/blog/_mappings`
-
-**请求体**：
+重启后：
 
 ```json
+POST /_analyze
 {
-  "mappings": {
-    "properties": {
-      "id": {
-        "type": "long"
-      },
-      "name": {
-        "type": "text",
-        "analyzer": "standard",
-        "store": true,
-        "index": true
-      },
-      "mobile": {
-        "type": "keyword",
-        "store": true,
-        "index": true
-      },
-      "comment": {
-        "type": "text",
-        "analyzer": "standard",
-        "store": true,
-        "index": true
-      }
-    }
-  }
+  "analyzer": "ik_max_word",
+  "text": "我爱北京天安门"
 }
 ```
 
-**字段说明**：
+结果：`我 | 爱 | 北京 | 天安门 | 天安 | 安门`
 
-- `type`：数据类型（text 支持分词，keyword 不支持分词）
-- `analyzer`：分词器（standard 是默认分词器）
-- `store`：是否存储文档完整内容（用于网页摘要展示）
-- `index`：是否创建索引（有分词需求必须为 true）
+IK 智能分词器有两种模式：
+- `ik_max_word`：最细粒度切分，召回率高，适合索引时使用
+- `ik_smart`：粗粒度切分，精确度高，适合搜索时使用
 
-## 四、Settings 配置
+最佳实践：索引用 ik_max_word，搜索用 ik_smart。
 
-Settings 定义索引库的物理存储设置。
+## 总结
 
-### 4.1 创建 Settings
-
-**方法**：PUT
-
-**URL**：`http://192.168.57.10:9200/blog/_settings`
-
-**请求体**：
-
-```json
-{
-  "mappings": {
-    "properties": {
-    }
-  },
-  "settings": {
-    "number_of_shards": 5,
-    "number_of_replicas": 1
-  }
-}
-```
-
-**重要说明**：
-
-- `number_of_shards`：分片数量，创建后无法修改
-- `number_of_replicas`：副本数量，可修改
-
-## 五、文档操作
-
-### 5.1 添加文档
-
-**方法**：POST
-
-**URL**：`http://192.168.57.10:9200/blog/_doc/{文档ID}`
-
-**请求体**：
-
-```json
-{
-  "id": 3,
-  "title": "文章标题",
-  "content": "文章内容"
-}
-```
-
-### 5.2 删除文档
-
-**方法**：DELETE
-
-**URL**：`http://192.168.57.10:9200/blog/_doc/{文档ID}`
-
-### 5.3 查询文档
-
-**方法**：GET
-
-**URL**：`http://192.168.57.10:9200/blog/_doc/{文档ID}`
-
-## 六、分词说明
-
-ES 默认分词器是 `standard`：
-
-- 英文：按空格分词
-- 中文：单字分词（每个汉字作为一个关键词）
-
-如需更好的中文分词效果，可安装 IK 分词器插件。
+- 倒排索引是全文检索的底层数据结构——词到文档的映射
+- text 字段用于搜索，keyword 用于过滤和聚合
+- 分片数不合理的代价比 indices 多 10% 磁盘严重得多
+- 中文搜索必须装 IK 分词器，单字分词的结果是不可接受的
