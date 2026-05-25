@@ -1,6 +1,9 @@
 ---
 import PostLayout from "../../layouts/PostLayout.astro";
+import LockScreen from "../../components/LockScreen.astro";
 import { getCollection, render } from "astro:content";
+import { marked } from "marked";
+import { encryptHtml, serializeEncrypted } from "../../lib/crypto";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
@@ -11,7 +14,30 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { Content } = await render(post);
+const slug = post.id.replace(/\.md$/, "");
+
+let locked = false;
+let encryptedContent = "";
+let renderedContent: Awaited<ReturnType<typeof render>> | null = null;
+
+if (post.data.locked) {
+  if (!post.data.password) {
+    throw new Error(
+      `文章 "${post.data.title}" 设置了 locked=true 但未提供 password`,
+    );
+  }
+  if (!post.body) {
+    throw new Error(
+      `文章 "${post.data.title}" 设置了 locked=true 但正文为空`,
+    );
+  }
+  const renderedHtml = marked.parse(post.body, { gfm: true }) as string;
+  const encrypted = encryptHtml(renderedHtml, post.data.password);
+  encryptedContent = serializeEncrypted(encrypted);
+  locked = true;
+} else {
+  renderedContent = await render(post);
+}
 ---
 
 <PostLayout
@@ -20,6 +46,8 @@ const { Content } = await render(post);
   pubDate={post.data.pubDate}
   updatedDate={post.data.updatedDate}
   tags={post.data.tags}
+  locked={locked}
 >
-  <Content />
+  {locked && <LockScreen encryptedContent={encryptedContent} slug={slug} />}
+  {!locked && renderedContent && <renderedContent.Content />}
 </PostLayout>

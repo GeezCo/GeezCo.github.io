@@ -79,11 +79,12 @@ import { site } from "../site.config";
   const expiredEl = document.getElementById('resume-expired')!;
 
   const TOKEN_KEY = 'resume_token';
+  const API_BASE = 'https://resume-api.cn-hangzhou.fc.aliyuncs.com';
 
   // 检查是否已有有效 token
   async function checkToken(token: string) {
     try {
-      const res = await fetch('/api/resume-download?lang=zh', {
+      const res = await fetch(`${API_BASE}/resume-download?lang=zh`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       return res.ok;
@@ -108,7 +109,7 @@ import { site } from "../site.config";
     }
 
     try {
-      const res = await fetch(`/api/resume-download?lang=${lang}`, {
+      const res = await fetch(`${API_BASE}/resume-download?lang=${lang}`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       if (!res.ok) {
@@ -163,7 +164,7 @@ import { site } from "../site.config";
     if (!password) return;
 
     try {
-      const res = await fetch('/api/resume-verify', {
+      const res = await fetch(`${API_BASE}/resume-verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),

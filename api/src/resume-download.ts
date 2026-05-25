@@ -1,10 +1,8 @@
-import { createHmac, createHash, createDecipheriv } from "node:crypto";
-import { readFileSync } from "node:fs";
-import path from "node:path";
+import { createHash, createDecipheriv, createHmac } from "crypto";
+import { readFileSync } from "fs";
+import path from "path";
 
-export const prerender = false;
-
-const SECRET = import.meta.env.SITE_SECRET;
+const SECRET = process.env.SITE_SECRET!;
 
 // 从 SITE_SECRET 派生 AES-256 密钥
 let aesKey: Buffer | null = null;
@@ -50,43 +48,57 @@ function verifyToken(token: string): boolean {
   return signature === expected;
 }
 
-export async function GET({ request }: { request: Request }) {
+export async function handler(event: any, context: any): Promise<any> {
   if (!SECRET) {
-    return new Response("Not configured", { status: 500 });
+    return {
+      statusCode: 500,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ error: "Not configured" }),
+    };
   }
 
-  const url = new URL(request.url);
+  // FC 3.0 HTTP 触发器 event 格式:
+  // { version, rawPath, headers, queryParameters, body, isBase64Encoded, requestContext }
+  const headers: Record<string, string> = event.headers || {};
+  const queryParameters: Record<string, string> = event.queryParameters || {};
+
   // 优先从 Authorization header 读取 token，保留 query param fallback
-  const headerToken = request.headers.get("Authorization")?.replace("Bearer ", "");
-  const token = headerToken ?? url.searchParams.get("token") ?? undefined;
-  const lang = url.searchParams.get("lang") || "zh";
+  const headerToken = headers["Authorization"]?.replace("Bearer ", "");
+  const headerTokenLower = headers["authorization"]?.replace("Bearer ", "");
+  const token = headerToken ?? headerTokenLower ?? queryParameters["token"] ?? undefined;
+  const lang = queryParameters["lang"] || "zh";
 
   if (!token || !verifyToken(token)) {
-    return new Response(JSON.stringify({ error: "Token 无效或已过期" }), {
-      status: 401,
+    return {
+      statusCode: 401,
       headers: { "Content-Type": "application/json" },
-    });
+      body: JSON.stringify({ error: "Token 无效或已过期" }),
+    };
   }
 
   const encFilename = lang === "en" ? "resume-en.pdf.enc" : "resume.pdf.enc";
   const pdfFilename = lang === "en" ? "resume-en.pdf" : "resume.pdf";
-  const filePath = path.join(process.cwd(), "src", "private", encFilename);
-  let pdfData: Buffer;
+  const filePath = path.join(process.cwd(), "private", encFilename);
 
   try {
     const encrypted = new Uint8Array(readFileSync(filePath));
-    pdfData = decrypt(encrypted);
+    const pdfData = decrypt(encrypted);
+    return {
+      statusCode: 200,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="${pdfFilename}"`,
+        "Content-Length": pdfData.length.toString(),
+      },
+      body: pdfData.toString("base64"),
+      isBase64Encoded: true,
+    };
   } catch (e) {
     console.error("PDF decrypt failed:", e);
-    return new Response("PDF file not found", { status: 500 });
+    return {
+      statusCode: 500,
+      headers: { "Content-Type": "text/plain" },
+      body: "PDF file not found",
+    };
   }
-
-  return new Response(new Uint8Array(pdfData), {
-    status: 200,
-    headers: {
-      "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="${pdfFilename}"`,
-      "Content-Length": pdfData.length.toString(),
-    },
-  });
 }

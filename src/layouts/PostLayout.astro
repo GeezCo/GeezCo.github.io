@@ -9,9 +9,10 @@ interface Props {
   pubDate: Date;
   updatedDate?: Date;
   tags?: string[];
+  locked?: boolean;
 }
 
-const { title, description, pubDate, updatedDate, tags = [] } = Astro.props;
+const { title, description, pubDate, updatedDate, tags = [], locked = false } = Astro.props;
 const formattedDate = pubDate.toLocaleDateString("zh-CN", {
   year: "numeric",
   month: "long",
@@ -22,7 +23,7 @@ const formattedDate = pubDate.toLocaleDateString("zh-CN", {
 <BaseLayout title={title} description={description}>
   <header class="post-header">
     <article class="post-header-card">
-      <h1>{title}</h1>
+      <h1>{title}{locked && <span class="locked-badge" title="密码保护"> 🔒</span>}</h1>
       <div class="post-meta">
         <span>📅 {formattedDate}</span>
         {updatedDate && (

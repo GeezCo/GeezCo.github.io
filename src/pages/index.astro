@@ -34,6 +34,7 @@ const recentPosts = sortedPosts.slice(0, 6);
           pubDate={post.data.pubDate}
           slug={post.id.replace(/\.md$/, "")}
           tags={post.data.tags}
+          locked={post.data.locked}
         />
       ))}
     </div>
@@ -49,6 +50,7 @@ const recentPosts = sortedPosts.slice(0, 6);
               pubDate={post.data.pubDate}
               slug={post.id.replace(/\.md$/, "")}
               tags={post.data.tags}
+              locked={post.data.locked}
             />
           ))}
         </div>

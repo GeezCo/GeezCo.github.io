@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // scripts/encrypt-pdf.mjs
 // 用法: SITE_SECRET="xxx" node scripts/encrypt-pdf.mjs
-// 从 src/private/ 读取 resume.pdf，输出 resume.pdf.enc 到同目录
+// 从 private/ 读取 resume.pdf，输出 resume.pdf.enc 到同目录
 
 import { createHash, randomBytes, createCipheriv } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
@@ -38,7 +38,7 @@ function encrypt(inputPath, outputPath) {
   console.log(`已加密: ${inputPath} → ${outputPath} (${kb} KB, IV + AuthTag + Ciphertext)`);
 }
 
-const privateDir = resolve(__dirname, "..", "src", "private");
+const privateDir = resolve(__dirname, "..", "private");
 
 try {
   encrypt(resolve(privateDir, "resume.pdf"), resolve(privateDir, "resume.pdf.enc"));

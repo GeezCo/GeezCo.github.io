@@ -1,0 +1,284 @@
+---
+interface Props {
+  encryptedContent: string;
+  slug: string;
+}
+
+const { encryptedContent, slug } = Astro.props;
+const storageKey = `decrypted:${slug}`;
+---
+
+<div class="lock-screen" id="lock-screen" data-encrypted={encryptedContent} data-slug={slug}>
+  <div class="lock-card">
+    <div class="lock-icon">&#x1f512;</div>
+    <h2 class="lock-title">本文已加密</h2>
+    <p class="lock-desc">请输入密码以查看内容</p>
+    <div class="lock-input-row">
+      <input
+        type="password"
+        id="lock-password"
+        class="lock-input"
+        placeholder="请输入密码"
+        autocomplete="off"
+      />
+      <button id="lock-submit" class="lock-btn">解锁</button>
+    </div>
+    <p id="lock-error" class="lock-error" style="display:none"></p>
+    <p id="lock-cooldown" class="lock-cooldown" style="display:none"></p>
+  </div>
+</div>
+
+<div id="decrypted-content" class="decrypted-content" style="display:none"></div>
+
+<noscript>
+  <div class="lock-card">
+    <p>此内容需要 JavaScript 才能解密查看。</p>
+  </div>
+</noscript>
+
+<script>
+  const lockScreen = document.getElementById("lock-screen")!;
+  const slug = lockScreen.dataset.slug!;
+  const encryptedBlob = lockScreen.dataset.encrypted!;
+  const storageKey = "decrypted:" + slug;
+
+  // 检查是否有缓存的解密内容
+  const cached = sessionStorage.getItem(storageKey);
+  if (cached) {
+    document.getElementById("lock-screen")!.style.display = "none";
+    const content = document.getElementById("decrypted-content")!;
+    content.innerHTML = cached;
+    content.style.display = "";
+  }
+
+  // 失败计数（sessionStorage 持久化）
+  let failCount = parseInt(sessionStorage.getItem("lock-fail:" + storageKey) || "0", 10);
+  let cooldownUntil = parseInt(sessionStorage.getItem("lock-cooldown:" + storageKey) || "0", 10);
+
+  function getCooldownSeconds(failures: number): number {
+    if (failures <= 5) return 0;
+    if (failures <= 10) return 30;
+    if (failures <= 20) return 300; // 5 min
+    return 1800; // 30 min
+  }
+
+  function updateCooldownUI() {
+    const now = Date.now();
+    const remaining = Math.ceil((cooldownUntil - now) / 1000);
+    const btn = document.getElementById("lock-submit") as HTMLButtonElement;
+    const input = document.getElementById("lock-password") as HTMLInputElement;
+    const cooldownEl = document.getElementById("lock-cooldown")!;
+
+    if (remaining > 0) {
+      btn.disabled = true;
+      input.disabled = true;
+      cooldownEl.style.display = "";
+      cooldownEl.textContent = "操作过于频繁，请等待 " + remaining + " 秒后再试";
+      setTimeout(updateCooldownUI, 1000);
+    } else {
+      btn.disabled = false;
+      input.disabled = false;
+      cooldownEl.style.display = "none";
+    }
+  }
+
+  if (cooldownUntil > Date.now()) {
+    updateCooldownUI();
+  }
+
+  document.getElementById("lock-submit")!.addEventListener("click", async () => {
+    const password = (document.getElementById("lock-password") as HTMLInputElement).value;
+    const errorEl = document.getElementById("lock-error")!;
+    const btn = document.getElementById("lock-submit") as HTMLButtonElement;
+
+    if (!password) {
+      errorEl.textContent = "请输入密码";
+      errorEl.style.display = "";
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "解密中...";
+    errorEl.style.display = "none";
+
+    try {
+      // 解析加密 blob: salt_b64 : iv_b64 : authTag_b64 : ciphertext_b64
+      const parts = encryptedBlob.split(":");
+      if (parts.length !== 4) throw new Error("Invalid encrypted data");
+
+      const salt = Uint8Array.from(atob(parts[0]), (c) => c.charCodeAt(0));
+      const iv = Uint8Array.from(atob(parts[1]), (c) => c.charCodeAt(0));
+      const authTag = Uint8Array.from(atob(parts[2]), (c) => c.charCodeAt(0));
+      const ciphertext = Uint8Array.from(atob(parts[3]), (c) => c.charCodeAt(0));
+
+      // Web Crypto: ciphertext + authTag 需要连接
+      const encrypted = new Uint8Array(ciphertext.length + authTag.length);
+      encrypted.set(ciphertext);
+      encrypted.set(authTag, ciphertext.length);
+
+      // PBKDF2 密钥派生
+      const enc = new TextEncoder();
+      const baseKey = await crypto.subtle.importKey(
+        "raw", enc.encode(password),
+        "PBKDF2", false, ["deriveKey"]
+      );
+      const key = await crypto.subtle.deriveKey(
+        { name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" },
+        baseKey,
+        { name: "AES-GCM", length: 256 },
+        false,
+        ["decrypt"]
+      );
+
+      // 解密
+      const decrypted = await crypto.subtle.decrypt(
+        { name: "AES-GCM", iv },
+        key,
+        encrypted
+      );
+
+      const html = new TextDecoder().decode(decrypted);
+
+      // 缓存到 sessionStorage
+      sessionStorage.setItem(storageKey, html);
+      sessionStorage.removeItem("lock-fail:" + storageKey);
+      sessionStorage.removeItem("lock-cooldown:" + storageKey);
+
+      // 显示内容
+      document.getElementById("lock-screen")!.style.display = "none";
+      const content = document.getElementById("decrypted-content")!;
+      content.innerHTML = html;
+      content.style.display = "";
+    } catch {
+      failCount++;
+      sessionStorage.setItem("lock-fail:" + storageKey, failCount.toString());
+
+      const sec = getCooldownSeconds(failCount);
+      if (sec > 0) {
+        cooldownUntil = Date.now() + sec * 1000;
+        sessionStorage.setItem("lock-cooldown:" + storageKey, cooldownUntil.toString());
+        updateCooldownUI();
+      }
+
+      errorEl.textContent = "密码错误，请重试";
+      errorEl.style.display = "";
+      btn.disabled = false;
+      btn.textContent = "解锁";
+    }
+  });
+
+  // 回车键提交
+  document.getElementById("lock-password")!.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      document.getElementById("lock-submit")!.click();
+    }
+  });
+</script>
+
+<style>
+  .lock-screen {
+    max-width: 28rem;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+  .lock-card {
+    background-color: #ffffff;
+    border-radius: 1rem;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    border: 1px solid #e4e4e7;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+  :global(html.dark) .lock-card {
+    background-color: rgba(39, 39, 42, 0.7);
+    border-color: rgba(63, 63, 70, 0.5);
+  }
+  .lock-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+  .lock-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #18181b;
+    margin-bottom: 0.5rem;
+  }
+  :global(html.dark) .lock-title {
+    color: #fafafa;
+  }
+  .lock-desc {
+    color: #71717a;
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+  }
+  :global(html.dark) .lock-desc {
+    color: #a1a1aa;
+  }
+  .lock-input-row {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .lock-input {
+    flex: 1;
+    padding: 0.625rem 0.875rem;
+    border: 1px solid #d4d4d8;
+    border-radius: 0.5rem;
+    font-size: 0.9375rem;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #ffffff;
+    color: #18181b;
+  }
+  .lock-input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  }
+  :global(html.dark) .lock-input {
+    background: #27272a;
+    border-color: #3f3f46;
+    color: #fafafa;
+  }
+  :global(html.dark) .lock-input:focus {
+    border-color: #818cf8;
+  }
+  .lock-btn {
+    padding: 0.625rem 1.25rem;
+    background-color: #6366f1;
+    color: #ffffff;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+  }
+  .lock-btn:hover {
+    background-color: #4f46e5;
+  }
+  .lock-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  :global(html.dark) .lock-btn {
+    background-color: #818cf8;
+  }
+  :global(html.dark) .lock-btn:hover {
+    background-color: #6366f1;
+  }
+  .lock-error {
+    color: #ef4444;
+    font-size: 0.8125rem;
+    margin-top: 0.75rem;
+  }
+  .lock-cooldown {
+    color: #f59e0b;
+    font-size: 0.8125rem;
+    margin-top: 0.75rem;
+  }
+  .decrypted-content {
+    max-width: 56rem;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+</style>

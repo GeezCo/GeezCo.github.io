@@ -1,0 +1,14 @@
+{
+  "name": "resume-api",
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc && mkdir -p dist/private && cp private/*.enc dist/private/",
+    "encrypt": "SITE_SECRET=$SITE_SECRET node scripts/encrypt-pdf.mjs"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "@types/node": "^22.0.0"
+  }
+}

@@ -10,6 +10,8 @@ const blog = defineCollection({
     updatedDate: z.coerce.date().optional(),
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
+    locked: z.boolean().default(false),
+    password: z.string().optional(),
     heroImage: z.string().optional(),
     legacySlug: z.string().optional(),
   }),
