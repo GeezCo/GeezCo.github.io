@@ -165,7 +165,7 @@ import { site } from "../site.config";
     if (!password) return;
 
     try {
-      const res = await fetch(`${API_BASE}/resume-verify`, {
+      const res = await fetch(`${API_BASE_VERIFY}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),
