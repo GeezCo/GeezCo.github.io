@@ -57,10 +57,8 @@ export async function GET({ request }: { request: Request }) {
 
   const url = new URL(request.url);
   // 优先从 Authorization header 读取 token，保留 query param fallback
-  let token = request.headers.get("Authorization")?.replace("Bearer ", "");
-  if (!token) {
-    token = url.searchParams.get("token");
-  }
+  const headerToken = request.headers.get("Authorization")?.replace("Bearer ", "");
+  const token = headerToken ?? url.searchParams.get("token") ?? undefined;
   const lang = url.searchParams.get("lang") || "zh";
 
   if (!token || !verifyToken(token)) {
@@ -83,7 +81,7 @@ export async function GET({ request }: { request: Request }) {
     return new Response("PDF file not found", { status: 500 });
   }
 
-  return new Response(pdfData, {
+  return new Response(new Uint8Array(pdfData), {
     status: 200,
     headers: {
       "Content-Type": "application/pdf",
