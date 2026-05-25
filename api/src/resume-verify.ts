@@ -48,25 +48,51 @@ function isValidPassword(input: string): boolean {
   return input === PASSWORD || input === hourlyPassword();
 }
 
-// FC 3.0 内置 runtime HTTP 触发器: event 是原始 HTTP 请求 body Buffer
-// 如果是 Buffer 或数字索引对象，解析为 JSON body
-// 如果是结构化对象（有 headers/body 字段），按 API Gateway 格式解析
+// FC 3.0 内置 runtime HTTP 触发器传递 event 的方式:
+// event 是一个类 Buffer 对象（数字索引的 Uint8Array），其内容可能是:
+// 1. 结构化 JSON (API Gateway 格式: {version, rawPath, headers, body, ...})
+// 2. 原始 HTTP 请求 body (如 {"password":"xxx"})
+// 3. 空数据 (GET 请求)
+//
+// 不能用 "body" in event 来检测，因为类 Buffer 对象的 in 操作符检查的是
+// 数字索引属性而非 JSON 内容。必须先转为字符串再解析。
 function parseRequestBody(event: any): any {
-  // Buffer 或类 Buffer（数字索引对象）
-  if (Buffer.isBuffer(event) || (typeof event === "object" && event !== null && !("body" in event) && Object.keys(event).every(k => /^\d+$/.test(k)))) {
-    const buf = Buffer.isBuffer(event) ? event : Buffer.from(Object.values(event) as number[]);
-    const str = buf.toString("utf-8");
-    return str ? JSON.parse(str) : {};
-  }
+  if (typeof event !== "object" || event === null) return {};
 
-  // 结构化 event（FC 2.0 或自定义 runtime）
-  const rawBody = event.body || "";
-  const isBase64 = event.isBase64Encoded || false;
-  if (isBase64) {
-    const decoded = Buffer.from(rawBody, "base64").toString("utf-8");
-    return decoded ? JSON.parse(decoded) : {};
+  // 先尝试作为 Buffer 解析
+  try {
+    const buf = Buffer.from(event as Uint8Array);
+    const str = buf.toString("utf-8");
+
+    if (!str) return {}; // 空 body（GET 请求）
+
+    const parsed = JSON.parse(str);
+
+    // 如果解析结果是 API Gateway 格式（有 version/body 字段），提取真正的 body
+    if (parsed.version && parsed.body !== undefined) {
+      const innerBody = parsed.body;
+      if (parsed.isBase64Encoded) {
+        const decoded = Buffer.from(innerBody, "base64").toString("utf-8");
+        return decoded ? JSON.parse(decoded) : {};
+      }
+      return typeof innerBody === "string" ? (innerBody ? JSON.parse(innerBody) : {}) : innerBody;
+    }
+
+    // 解析结果就是原始 body（如 {"password":"xxx"})
+    return parsed;
+  } catch {
+    // 不是 Buffer，可能是普通对象
+    if (event.body !== undefined) {
+      const rawBody = event.body || "";
+      const isBase64 = event.isBase64Encoded || false;
+      if (isBase64) {
+        const decoded = Buffer.from(rawBody, "base64").toString("utf-8");
+        return decoded ? JSON.parse(decoded) : {};
+      }
+      return typeof rawBody === "string" ? (rawBody ? JSON.parse(rawBody) : {}) : rawBody;
+    }
+    return {};
   }
-  return typeof rawBody === "string" ? (rawBody ? JSON.parse(rawBody) : {}) : rawBody;
 }
 
 export async function handler(event: any, context: any): Promise<any> {
@@ -79,7 +105,19 @@ export async function handler(event: any, context: any): Promise<any> {
   }
 
   const body = parseRequestBody(event);
-  const ip = "127.0.0.1"; // FC 内置 runtime 没有 request context，IP 不可获取
+
+  // 提取 clientIP（如果 event 是 API Gateway 格式）
+  let ip = "127.0.0.1";
+  try {
+    const buf = Buffer.from(event as Uint8Array);
+    const str = buf.toString("utf-8");
+    if (str) {
+      const parsed = JSON.parse(str);
+      if (parsed.requestContext) {
+        ip = parsed.requestContext.clientIP || ip;
+      }
+    }
+  } catch {}
 
   if (!checkRate(ip)) {
     return {
