@@ -1,0 +1,538 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="SVG 转换工具" description="将 SVG 文件转换为 PNG/JPG 图片">
+  <section class="tools-page">
+    <div class="page">
+      <div class="header">
+        <h1>🖼️ SVG 转换工具</h1>
+        <p class="subtitle">将 SVG 文件转换为 PNG/JPG 图片</p>
+      </div>
+
+      <div class="main">
+        <div class="left-panel">
+          <div class="panel-title">上传 SVG 文件</div>
+          <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📁</div>
+            <div class="upload-text">点击或拖拽 SVG 文件到此处</div>
+            <div class="upload-hint">支持 .svg 文件</div>
+          </div>
+          <input type="file" id="fileInput" accept=".svg" style="display: none;">
+          <div id="fileInfo" class="file-info hidden"></div>
+
+          <div class="buttons">
+            <button onclick="previewSVG()">预览</button>
+            <button onclick="clearUpload()" class="gray">清空</button>
+            <button onclick="downloadAs('png')" class="green">下载 PNG</button>
+            <button onclick="downloadAs('jpg')" class="purple">下载 JPG</button>
+          </div>
+
+          <div class="settings">
+            <div class="settings-row">
+              <label>文件名</label>
+              <input type="text" id="fileName" value="converted">
+            </div>
+            <div class="settings-row">
+              <label>图片宽度</label>
+              <input type="number" id="imgWidth" value="1920" min="400" max="4000">
+            </div>
+            <div class="settings-row">
+              <label>背景色</label>
+              <select id="bgColor">
+                <option value="white">白色</option>
+                <option value="transparent">透明</option>
+                <option value="#f5f5f5">浅灰</option>
+                <option value="#000000">黑色</option>
+              </select>
+            </div>
+          </div>
+          <div id="statusBar" class="status"></div>
+        </div>
+
+        <div class="right-panel">
+          <div class="preview-header">
+            <div class="panel-title">预览</div>
+            <div class="zoom-box">
+              <button onclick="zoomOut()" class="gray">-</button>
+              <span id="zoomTxt">100%</span>
+              <button onclick="zoomIn()" class="gray">+</button>
+              <button onclick="zoomReset()" class="gray">重置</button>
+            </div>
+          </div>
+          <div id="previewBox">
+            <div id="preview">上传 SVG 文件后点击预览</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script is:inline>
+  var svgContent = "";
+  var zoom = 1;
+
+  function log(msg, type) {
+    var el = document.getElementById("statusBar");
+    if (!el) return;
+    el.textContent = msg;
+    el.className = "status " + (type || "");
+  }
+
+  function setZoom() {
+    document.getElementById("zoomTxt").textContent = Math.round(zoom * 100) + "%";
+    document.getElementById("preview").style.transform = "scale(" + zoom + ")";
+  }
+
+  function zoomIn() {
+    if (zoom < 3) {
+      zoom += 0.25;
+      setZoom();
+    }
+  }
+
+  function zoomOut() {
+    if (zoom > 0.25) {
+      zoom -= 0.25;
+      setZoom();
+    }
+  }
+
+  function zoomReset() {
+    zoom = 1;
+    setZoom();
+  }
+
+  // 上传区域点击
+  document.getElementById("uploadArea").addEventListener("click", function() {
+    document.getElementById("fileInput").click();
+  });
+
+  // 文件选择
+  document.getElementById("fileInput").addEventListener("change", function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.name.toLowerCase().endsWith(".svg")) {
+      log("请上传 SVG 文件", "error");
+      return;
+    }
+
+    var reader = new FileReader();
+    reader.onload = function(evt) {
+      svgContent = evt.target.result;
+      document.getElementById("fileInfo").textContent = "已加载: " + file.name + " (" + (file.size / 1024).toFixed(1) + " KB)";
+      document.getElementById("fileInfo").classList.remove("hidden");
+      log("SVG 文件已加载", "success");
+    };
+    reader.readAsText(file);
+  });
+
+  // 拖拽上传
+  var uploadArea = document.getElementById("uploadArea");
+  uploadArea.addEventListener("dragover", function(e) {
+    e.preventDefault();
+    uploadArea.classList.add("dragover");
+  });
+  uploadArea.addEventListener("dragleave", function(e) {
+    uploadArea.classList.remove("dragover");
+  });
+  uploadArea.addEventListener("drop", function(e) {
+    e.preventDefault();
+    uploadArea.classList.remove("dragover");
+    var file = e.dataTransfer.files[0];
+    if (file) {
+      document.getElementById("fileInput").files = e.dataTransfer.files;
+      document.getElementById("fileInput").dispatchEvent(new Event("change"));
+    }
+  });
+
+  function previewSVG() {
+    if (!svgContent) {
+      log("请先上传 SVG 文件", "error");
+      return;
+    }
+    document.getElementById("preview").innerHTML = svgContent;
+    log("预览成功", "success");
+  }
+
+  function clearUpload() {
+    svgContent = "";
+    document.getElementById("fileInput").value = "";
+    document.getElementById("fileInfo").classList.add("hidden");
+    document.getElementById("preview").innerHTML = "上传 SVG 文件后点击预览";
+    log("");
+  }
+
+  function downloadAs(format) {
+    if (!svgContent) {
+      log("请先上传 SVG 文件", "error");
+      return;
+    }
+
+    var fileName = document.getElementById("fileName").value || "converted";
+    var width = parseInt(document.getElementById("imgWidth").value) || 1920;
+    var bgColor = document.getElementById("bgColor").value;
+
+    var parser = new DOMParser();
+    var doc = parser.parseFromString(svgContent, "image/svg+xml");
+    var svgEl = doc.documentElement;
+
+    var viewBox = svgEl.getAttribute("viewBox");
+    var vbArr = viewBox ? viewBox.split(/\s+/) : [];
+    var vbW = parseFloat(vbArr[2]) || 800;
+    var vbH = parseFloat(vbArr[3]) || 600;
+    var ratio = vbH / vbW;
+    var height = Math.round(width * ratio);
+
+    var canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    var ctx = canvas.getContext("2d");
+
+    if (bgColor !== "transparent") {
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, width, height);
+    }
+
+    var img = new Image();
+    img.onload = function() {
+      ctx.drawImage(img, 0, 0, width, height);
+
+      var mimeType = format === "jpg" ? "image/jpeg" : "image/png";
+      var quality = format === "jpg" ? 0.92 : 1;
+
+      canvas.toBlob(function(blob) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = fileName + "." + format;
+        a.click();
+        URL.revokeObjectURL(url);
+        log(format.toUpperCase() + " 下载成功 (" + width + "x" + height + ")", "success");
+      }, mimeType, quality);
+    };
+
+    img.onerror = function() {
+      log("转换失败", "error");
+    };
+
+    var svgBlob = new Blob([svgContent], { type: "image/svg+xml;charset=utf-8" });
+    var svgUrl = URL.createObjectURL(svgBlob);
+    img.src = svgUrl;
+  }
+
+  setZoom();
+</script>
+
+<style>
+  .tools-page {
+    background: linear-gradient(to bottom right, #eef2ff, #ffffff, #f3e8ff);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+  :global(html.dark) .tools-page {
+    background: linear-gradient(to bottom right, #18181b, #18181b, #27272a);
+  }
+
+  .page {
+    max-width: 90rem;
+    margin: 0 auto;
+    height: calc(100vh - 4rem);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #18181b;
+    margin-bottom: 0.5rem;
+  }
+  :global(html.dark) h1 {
+    color: #fafafa;
+  }
+
+  .subtitle {
+    color: #71717a;
+    font-size: 0.9375rem;
+  }
+  :global(html.dark) .subtitle {
+    color: #a1a1aa;
+  }
+
+  .main {
+    display: flex;
+    gap: 1rem;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .left-panel {
+    width: 35%;
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  :global(html.dark) .left-panel {
+    background: rgba(39, 39, 42, 0.7);
+  }
+
+  .right-panel {
+    flex: 1;
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  :global(html.dark) .right-panel {
+    background: rgba(39, 39, 42, 0.7);
+  }
+
+  .panel-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #18181b;
+    margin-bottom: 0.75rem;
+  }
+  :global(html.dark) .panel-title {
+    color: #fafafa;
+  }
+
+  .upload-area {
+    border: 2px dashed #d4d4d8;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #fafafa;
+    margin-bottom: 0.75rem;
+  }
+  .upload-area:hover {
+    border-color: #6366f1;
+    background: #eef2ff;
+  }
+  .upload-area.dragover {
+    border-color: #6366f1;
+    background: #e0e7ff;
+  }
+  :global(html.dark) .upload-area {
+    background: #3f3f46;
+    border-color: #52525b;
+  }
+  :global(html.dark) .upload-area:hover,
+  :global(html.dark) .upload-area.dragover {
+    background: rgba(99, 102, 241, 0.15);
+    border-color: #818cf8;
+  }
+
+  .upload-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .upload-text {
+    font-size: 0.9375rem;
+    color: #71717a;
+    margin-bottom: 0.25rem;
+  }
+  :global(html.dark) .upload-text {
+    color: #a1a1aa;
+  }
+
+  .upload-hint {
+    font-size: 0.8125rem;
+    color: #a1a1aa;
+  }
+
+  .file-info {
+    font-size: 0.8125rem;
+    color: #16a34a;
+    background: #f0fdf4;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    margin-bottom: 0.75rem;
+  }
+  :global(html.dark) .file-info {
+    background: rgba(22, 163, 74, 0.15);
+    color: #4ade80;
+  }
+
+  .file-info.hidden {
+    display: none;
+  }
+
+  .buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    background: #6366f1;
+    color: white;
+    transition: all 0.2s;
+  }
+  button:hover {
+    background: #4f46e5;
+  }
+  button.gray {
+    background: #71717a;
+  }
+  button.gray:hover {
+    background: #52525b;
+  }
+  button.green {
+    background: #10b981;
+  }
+  button.green:hover {
+    background: #059669;
+  }
+  button.purple {
+    background: #a855f7;
+  }
+  button.purple:hover {
+    background: #9333ea;
+  }
+
+  .settings {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .settings-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .settings-row label {
+    font-size: 0.8125rem;
+    color: #71717a;
+    min-width: 4rem;
+  }
+  :global(html.dark) .settings-row label {
+    color: #a1a1aa;
+  }
+
+  .settings-row input,
+  .settings-row select {
+    flex: 1;
+    padding: 0.375rem 0.5rem;
+    border: 1px solid #e4e4e7;
+    border-radius: 0.375rem;
+    font-size: 0.8125rem;
+  }
+  :global(html.dark) .settings-row input,
+  :global(html.dark) .settings-row select {
+    background: #27272a;
+    border-color: #3f3f46;
+    color: #fafafa;
+  }
+
+  .status {
+    font-size: 0.8125rem;
+    padding: 0.375rem 0.5rem;
+    border-radius: 0.375rem;
+    min-height: 1.75rem;
+  }
+  .status.success {
+    background: #f0fdf4;
+    color: #16a34a;
+  }
+  .status.error {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+  :global(html.dark) .status.success {
+    background: rgba(22, 163, 74, 0.15);
+    color: #4ade80;
+  }
+  :global(html.dark) .status.error {
+    background: rgba(220, 38, 38, 0.15);
+    color: #f87171;
+  }
+
+  .preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .zoom-box {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .zoom-box button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8125rem;
+  }
+
+  .zoom-box span {
+    font-size: 0.8125rem;
+    color: #71717a;
+    min-width: 3rem;
+    text-align: center;
+  }
+  :global(html.dark) .zoom-box span {
+    color: #a1a1aa;
+  }
+
+  #previewBox {
+    flex: 1;
+    overflow: auto;
+    border: 1px solid #e4e4e7;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    background: #fafafa;
+  }
+  :global(html.dark) #previewBox {
+    background: #18181b;
+    border-color: #3f3f46;
+  }
+
+  #preview {
+    display: inline-block;
+    transform-origin: top left;
+  }
+
+  #preview svg {
+    max-width: none;
+  }
+
+  @media (max-width: 768px) {
+    .main {
+      flex-direction: column;
+    }
+    .left-panel {
+      width: 100%;
+    }
+    .right-panel {
+      min-height: 300px;
+    }
+  }
+</style>

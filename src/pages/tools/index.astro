@@ -1,0 +1,177 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const tools = [
+  {
+    name: "Mermaid 图表",
+    icon: "📊",
+    description: "将 Mermaid 代码转换为 SVG/PNG 图表",
+    url: "/tools/mermaid",
+    color: "from-blue-500 to-cyan-500"
+  },
+  {
+    name: "SVG 转换",
+    icon: "🖼️",
+    description: "将 SVG 文件转换为 PNG/JPG 图片",
+    url: "/tools/svg-convert",
+    color: "from-purple-500 to-pink-500"
+  },
+  {
+    name: "ASCII Art",
+    icon: "🎨",
+    description: "将 ASCII 文本图转换为 SVG 矢量图",
+    url: "/tools/ascii-art",
+    color: "from-green-500 to-emerald-500"
+  }
+];
+---
+
+<BaseLayout title="工具箱" description="在线工具集合">
+  <section class="tools-index">
+    <div class="container">
+      <h1>🧰 我的工具箱</h1>
+      <p class="subtitle">一些实用的在线小工具</p>
+
+      <div class="tools-grid">
+        {tools.map(tool => (
+          <a href={tool.url} class="tool-card">
+            <div class={`tool-icon bg-gradient-to-br ${tool.color}`}>
+              <span>{tool.icon}</span>
+            </div>
+            <h2>{tool.name}</h2>
+            <p>{tool.description}</p>
+            <div class="tool-arrow">→</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .tools-index {
+    background: linear-gradient(to bottom right, #eef2ff, #ffffff, #f3e8ff);
+    min-height: 70vh;
+    padding: 4rem 1rem;
+  }
+  :global(html.dark) .tools-index {
+    background: linear-gradient(to bottom right, #18181b, #18181b, #27272a);
+  }
+
+  .container {
+    max-width: 72rem;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #18181b;
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+  :global(html.dark) h1 {
+    color: #fafafa;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: #71717a;
+    font-size: 1.125rem;
+    margin-bottom: 3rem;
+  }
+  :global(html.dark) .subtitle {
+    color: #a1a1aa;
+  }
+
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .tool-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  .tool-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  }
+  :global(html.dark) .tool-card {
+    background: rgba(39, 39, 42, 0.7);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  }
+  :global(html.dark) .tool-card:hover {
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+  }
+
+  .tool-icon {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .tool-card h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #18181b;
+    margin-bottom: 0.75rem;
+  }
+  :global(html.dark) .tool-card h2 {
+    color: #fafafa;
+  }
+
+  .tool-card p {
+    color: #71717a;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    flex-grow: 1;
+  }
+  :global(html.dark) .tool-card p {
+    color: #a1a1aa;
+  }
+
+  .tool-arrow {
+    position: absolute;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    font-size: 1.5rem;
+    color: #d4d4d8;
+    transition: all 0.3s ease;
+  }
+  .tool-card:hover .tool-arrow {
+    color: #6366f1;
+    transform: translateX(4px);
+  }
+  :global(html.dark) .tool-arrow {
+    color: #52525b;
+  }
+  :global(html.dark) .tool-card:hover .tool-arrow {
+    color: #818cf8;
+  }
+
+  @media (max-width: 768px) {
+    h1 {
+      font-size: 2rem;
+    }
+    .tools-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+</style>
