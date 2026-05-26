@@ -84,12 +84,37 @@
 
       // 加载每个结果的完整数据
       const data = await Promise.all(searchResults.map(r => r.data()));
-      results.innerHTML = data.map(d => `
-        <a href="${d.url}" class="search-result-item">
-          <span class="search-result-title">${d.meta.title || '无标题'}</span>
-          <span class="search-result-excerpt">${d.excerpt ? d.excerpt.replace(/<\/?mark>/g, '') : ''}</span>
-        </a>
-      `).join('');
+      results.innerHTML = data.map(d => {
+        // 提取标签和日期
+        const tags = d.meta.tags ? d.meta.tags.split(',').slice(0, 3) : [];
+        const date = d.meta.date || '';
+
+        // 清理摘要：移除 mark 标签，限制长度
+        let excerpt = d.excerpt || '';
+        excerpt = excerpt.replace(/<\/?mark>/g, '');
+        excerpt = excerpt.replace(/<[^>]+>/g, ''); // 移除所有 HTML 标签
+        if (excerpt.length > 120) {
+          excerpt = excerpt.substring(0, 120) + '...';
+        }
+
+        return `
+          <a href="${d.url}" class="search-result-item">
+            <div class="search-result-header">
+              <span class="search-result-icon">📄</span>
+              <span class="search-result-title">${d.meta.title || '无标题'}</span>
+            </div>
+            ${excerpt ? `<p class="search-result-excerpt">${excerpt}</p>` : ''}
+            <div class="search-result-meta">
+              ${tags.length > 0 ? `
+                <span class="search-result-tags">
+                  🏷️ ${tags.map(tag => `<span class="tag">${tag.trim()}</span>`).join(' ')}
+                </span>
+              ` : ''}
+              ${date ? `<span class="search-result-date">📅 ${date}</span>` : ''}
+            </div>
+          </a>
+        `;
+      }).join('');
     }
 
     // 事件
@@ -204,45 +229,85 @@
 
   .search-result-item {
     display: block;
-    padding: 0.75rem 1.25rem;
+    padding: 1rem 1.25rem;
     text-decoration: none;
-    transition: background-color 0.15s;
+    transition: all 0.2s;
     border-bottom: 1px solid #f4f4f5;
   }
   :global(html.dark) .search-result-item {
     border-bottom-color: #3f3f46;
   }
   .search-result-item:hover {
-    background-color: #f4f4f5;
+    background-color: #f9fafb;
+    transform: translateX(4px);
   }
   :global(html.dark) .search-result-item:hover {
     background-color: #3f3f46;
   }
 
+  .search-result-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .search-result-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
   .search-result-title {
-    display: block;
     font-size: 0.95rem;
     font-weight: 600;
     color: #18181b;
-    margin-bottom: 0.25rem;
+    line-height: 1.4;
   }
   :global(html.dark) .search-result-title {
     color: #fafafa;
   }
 
   .search-result-excerpt {
-    display: block;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     color: #71717a;
-    line-height: 1.4;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
   }
   :global(html.dark) .search-result-excerpt {
     color: #a1a1aa;
+  }
+
+  .search-result-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.75rem;
+    color: #a1a1aa;
+    padding-left: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .search-result-tags {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .search-result-tags .tag {
+    background: #f4f4f5;
+    color: #71717a;
+    padding: 0.15rem 0.4rem;
+    border-radius: 0.25rem;
+    font-size: 0.7rem;
+  }
+  :global(html.dark) .search-result-tags .tag {
+    background: #3f3f46;
+    color: #a1a1aa;
+  }
+
+  .search-result-date {
+    white-space: nowrap;
   }
 
   .search-empty {

@@ -15,7 +15,7 @@ const recentPosts = sortedPosts.slice(0, 6);
       <h1>{site.title}</h1>
       <p>{site.description}</p>
       <div class="hero-buttons">
-        <a href="/search" class="btn-primary">🔍 搜索文章</a>
+        <button onclick="window.__searchOpen?.()" class="btn-primary">🔍 搜索文章</button>
         <a href="/about" class="btn-secondary">👋 了解更多</a>
       </div>
     </div>
@@ -119,6 +119,10 @@ const recentPosts = sortedPosts.slice(0, 6);
     border-radius: 0.5rem;
     font-weight: 500;
     transition: background-color 0.2s;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 1rem;
   }
   .btn-primary:hover {
     background-color: #4f46e5;
