@@ -26,13 +26,19 @@
 
     // 初始化 Pagefind
     async function initPagefind() {
-      if (typeof Pagefind === 'undefined') {
-        // 动态加载
-        const script = document.createElement('script');
-        script.src = '/pagefind/pagefind.js';
-        await new Promise((resolve) => { script.onload = resolve; document.head.appendChild(script); });
+      if (!pagefind) {
+        // 动态加载 Pagefind 脚本
+        if (!window.pagefind) {
+          await new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = '/pagefind/pagefind.js';
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+          });
+        }
+        pagefind = window.pagefind;
       }
-      pagefind = new Pagefind();
     }
 
     // 打开搜索弹窗
@@ -68,8 +74,10 @@
         return;
       }
 
-      const search = await pagefind.debouncedSearch(query);
-      if (!search) {
+      // 使用正确的 Pagefind API: search() 方法
+      const search = await pagefind.search(query);
+
+      if (!search || !search.results || search.results.length === 0) {
         results.innerHTML = '';
         empty.textContent = '未找到相关文章';
         empty.style.display = 'block';
@@ -77,19 +85,13 @@
       }
 
       const searchResults = search.results.slice(0, 8);
-      if (searchResults.length === 0) {
-        results.innerHTML = '';
-        empty.textContent = '未找到相关文章';
-        empty.style.display = 'block';
-        return;
-      }
-
       empty.style.display = 'none';
 
+      // 加载每个结果的完整数据
       const data = await Promise.all(searchResults.map(r => r.data()));
       results.innerHTML = data.map(d => `
         <a href="${d.url}" class="search-result-item">
-          <span class="search-result-title">${d.meta.title}</span>
+          <span class="search-result-title">${d.meta.title || '无标题'}</span>
           <span class="search-result-excerpt">${d.excerpt ? d.excerpt.replace(/<\/?mark>/g, '') : ''}</span>
         </a>
       `).join('');
