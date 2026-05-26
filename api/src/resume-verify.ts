@@ -95,11 +95,28 @@ function parseRequestBody(event: any): any {
   }
 }
 
+const CORS_HEADERS = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
 export async function handler(event: any, context: any): Promise<any> {
+  // 处理 OPTIONS 预检请求
+  const method = event?.httpMethod || event?.requestContext?.http?.method || "POST";
+  if (method === "OPTIONS") {
+    return {
+      statusCode: 200,
+      headers: CORS_HEADERS,
+      body: "",
+    };
+  }
+
   if (!PASSWORD || !SECRET) {
     return {
       statusCode: 500,
-      headers: { "Content-Type": "application/json" },
+      headers: CORS_HEADERS,
       body: JSON.stringify({ error: "Not configured" }),
     };
   }
@@ -122,7 +139,7 @@ export async function handler(event: any, context: any): Promise<any> {
   if (!checkRate(ip)) {
     return {
       statusCode: 429,
-      headers: { "Content-Type": "application/json" },
+      headers: CORS_HEADERS,
       body: JSON.stringify({ error: "请求过于频繁，请15分钟后再试" }),
     };
   }
@@ -133,7 +150,7 @@ export async function handler(event: any, context: any): Promise<any> {
     recordFailure(ip);
     return {
       statusCode: 401,
-      headers: { "Content-Type": "application/json" },
+      headers: CORS_HEADERS,
       body: JSON.stringify({ error: "密码错误" }),
     };
   }
@@ -142,7 +159,7 @@ export async function handler(event: any, context: any): Promise<any> {
   const token = generateToken();
   return {
     statusCode: 200,
-    headers: { "Content-Type": "application/json" },
+    headers: CORS_HEADERS,
     body: JSON.stringify({ token }),
   };
 }

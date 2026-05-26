@@ -185,6 +185,7 @@
   },
   "active": "cbcb0c29ecdee1d3",
   "lastOpenFiles": [
+    "api/scripts/get-hourly-password.mjs",
     "dist/pagefind/pagefind-component-ui.js",
     "dist/pagefind/pagefind-ui.css",
     "dist/pagefind/pagefind-worker.js",
@@ -195,7 +196,6 @@
     "dist/pagefind/wasm.unknown.pagefind",
     "dist/pagefind/pagefind-ui.js",
     "dist/pagefind/pagefind-highlight.js",
-    "dist/pagefind/pagefind-component-ui.css",
     "dist/images/wechat.jpeg",
     "dist/images/be34b97d-1b48-4603-9462-8d638a554ccd.png",
     "dist/images/9b420809-c290-4745-9c35-a39fd1eafdff.png",

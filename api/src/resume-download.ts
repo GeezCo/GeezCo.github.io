@@ -92,11 +92,27 @@ function parseEvent(event: any): { queryParameters: Record<string, string>; head
   }
 }
 
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Authorization, Content-Type",
+};
+
 export async function handler(event: any, context: any): Promise<any> {
+  // 处理 OPTIONS 预检请求
+  const method = event?.httpMethod || event?.requestContext?.http?.method || "GET";
+  if (method === "OPTIONS") {
+    return {
+      statusCode: 200,
+      headers: CORS_HEADERS,
+      body: "",
+    };
+  }
+
   if (!SECRET) {
     return {
       statusCode: 500,
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...CORS_HEADERS },
       body: JSON.stringify({ error: "Not configured" }),
     };
   }
@@ -112,7 +128,7 @@ export async function handler(event: any, context: any): Promise<any> {
   if (!token || !verifyToken(token)) {
     return {
       statusCode: 401,
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...CORS_HEADERS },
       body: JSON.stringify({ error: "Token 无效或已过期" }),
     };
   }
@@ -130,6 +146,7 @@ export async function handler(event: any, context: any): Promise<any> {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="${pdfFilename}"`,
         "Content-Length": pdfData.length.toString(),
+        ...CORS_HEADERS,
       },
       body: pdfData.toString("base64"),
       isBase64Encoded: true,
@@ -138,7 +155,7 @@ export async function handler(event: any, context: any): Promise<any> {
     console.error("PDF decrypt failed:", e);
     return {
       statusCode: 500,
-      headers: { "Content-Type": "text/plain" },
+      headers: { "Content-Type": "text/plain", ...CORS_HEADERS },
       body: "PDF file not found",
     };
   }
