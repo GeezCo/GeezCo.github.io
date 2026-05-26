@@ -15,7 +15,7 @@
   </div>
 </div>
 
-<script>
+<script is:inline>
   document.addEventListener('DOMContentLoaded', () => {
     const overlay = document.getElementById('search-modal');
     const input = document.getElementById('search-input');
@@ -24,20 +24,15 @@
 
     let pagefind = null;
 
-    // 初始化 Pagefind
+    // 初始化 Pagefind - 使用 ES Module 动态导入
     async function initPagefind() {
       if (!pagefind) {
-        // 动态加载 Pagefind 脚本
-        if (!window.pagefind) {
-          await new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = '/pagefind/pagefind.js';
-            script.onload = resolve;
-            script.onerror = reject;
-            document.head.appendChild(script);
-          });
+        try {
+          pagefind = await import('/pagefind/pagefind.js');
+          console.log('Pagefind 初始化成功');
+        } catch (error) {
+          console.error('Pagefind 加载失败:', error);
         }
-        pagefind = window.pagefind;
       }
     }
 
