@@ -1,0 +1,26 @@
+node_modules/
+dist/
+.astro/
+.env
+.env.local
+.DS_Store
+
+# package-lock.json 由 CI 环境自动生成，避免本地/CI 环境差异
+package-lock.json
+
+# IDE 和工具配置
+.idea/
+.claude/
+.vercel/
+openspec/
+
+# 本地维护文档，不提交到仓库
+NO-GIT-AGENTS.md
+
+# 敏感文件 —— 仅本地备份，绝不提交
+# .enc 为 AES-256-GCM 加密文件，可安全提交
+src/private/
+.gitignore
+
+# 策略 A：sync 产物必须提交，勿忽略
+# src/content/blog/
