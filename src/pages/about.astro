@@ -82,6 +82,18 @@ import { site } from "../site.config";
   const API_BASE_VERIFY = 'https://resume-verify-dezmismfzd.cn-hangzhou.fcapp.run';
   const API_BASE_DOWNLOAD = 'https://resume-download-oszteloomn.cn-hangzhou.fcapp.run';
 
+  // 生成设备指纹
+  function getDeviceFingerprint(): string {
+    const components = [
+      navigator.userAgent,
+      navigator.language,
+      screen.width + 'x' + screen.height,
+      new Date().getTimezoneOffset().toString(),
+      (navigator.hardwareConcurrency || 0).toString(),
+    ];
+    return btoa(components.join('|'));
+  }
+
   // 检查是否已有有效 token
   async function checkToken(token: string) {
     try {
@@ -164,12 +176,21 @@ import { site } from "../site.config";
     const password = passwordInput.value;
     if (!password) return;
 
+    const fingerprint = getDeviceFingerprint();
+
     try {
       const res = await fetch(`${API_BASE_VERIFY}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ password, fingerprint }),
       });
+
+      if (res.status === 423) {
+        // 设备已锁定
+        const data = await res.json();
+        showError(data.error || '设备已锁定');
+        return;
+      }
 
       if (res.status === 429) {
         const data = await res.json();
