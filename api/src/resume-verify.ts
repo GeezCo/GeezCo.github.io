@@ -56,42 +56,59 @@ function isValidPassword(input: string): boolean {
 //
 // 不能用 "body" in event 来检测，因为类 Buffer 对象的 in 操作符检查的是
 // 数字索引属性而非 JSON 内容。必须先转为字符串再解析。
-function parseRequestBody(event: any): any {
-  if (typeof event !== "object" || event === null) return {};
+function parseRequestBody(event: any): { body: any; method: string } {
+  if (typeof event !== "object" || event === null) {
+    return { body: {}, method: "POST" };
+  }
 
   // 先尝试作为 Buffer 解析
   try {
     const buf = Buffer.from(event as Uint8Array);
     const str = buf.toString("utf-8");
 
-    if (!str) return {}; // 空 body（GET 请求）
+    if (!str) return { body: {}, method: "GET" }; // 空 body（GET 请求）
 
     const parsed = JSON.parse(str);
+
+    // 提取 HTTP method
+    let method = "POST";
+    if (parsed.requestContext?.http?.method) {
+      method = parsed.requestContext.http.method;
+    } else if (parsed.httpMethod) {
+      method = parsed.httpMethod;
+    }
 
     // 如果解析结果是 API Gateway 格式（有 version/body 字段），提取真正的 body
     if (parsed.version && parsed.body !== undefined) {
       const innerBody = parsed.body;
       if (parsed.isBase64Encoded) {
         const decoded = Buffer.from(innerBody, "base64").toString("utf-8");
-        return decoded ? JSON.parse(decoded) : {};
+        return { body: decoded ? JSON.parse(decoded) : {}, method };
       }
-      return typeof innerBody === "string" ? (innerBody ? JSON.parse(innerBody) : {}) : innerBody;
+      return {
+        body: typeof innerBody === "string" ? (innerBody ? JSON.parse(innerBody) : {}) : innerBody,
+        method,
+      };
     }
 
     // 解析结果就是原始 body（如 {"password":"xxx"})
-    return parsed;
+    return { body: parsed, method };
   } catch {
     // 不是 Buffer，可能是普通对象
     if (event.body !== undefined) {
+      const method = event.httpMethod || event.requestContext?.http?.method || "POST";
       const rawBody = event.body || "";
       const isBase64 = event.isBase64Encoded || false;
       if (isBase64) {
         const decoded = Buffer.from(rawBody, "base64").toString("utf-8");
-        return decoded ? JSON.parse(decoded) : {};
+        return { body: decoded ? JSON.parse(decoded) : {}, method };
       }
-      return typeof rawBody === "string" ? (rawBody ? JSON.parse(rawBody) : {}) : rawBody;
+      return {
+        body: typeof rawBody === "string" ? (rawBody ? JSON.parse(rawBody) : {}) : rawBody,
+        method,
+      };
     }
-    return {};
+    return { body: {}, method: "POST" };
   }
 }
 
@@ -103,8 +120,10 @@ const CORS_HEADERS = {
 };
 
 export async function handler(event: any, context: any): Promise<any> {
+  // 解析请求体和 HTTP method
+  const { body, method } = parseRequestBody(event);
+
   // 处理 OPTIONS 预检请求
-  const method = event?.httpMethod || event?.requestContext?.http?.method || "POST";
   if (method === "OPTIONS") {
     return {
       statusCode: 200,
@@ -120,8 +139,6 @@ export async function handler(event: any, context: any): Promise<any> {
       body: JSON.stringify({ error: "Not configured" }),
     };
   }
-
-  const body = parseRequestBody(event);
 
   // 提取 clientIP（如果 event 是 API Gateway 格式）
   let ip = "127.0.0.1";
