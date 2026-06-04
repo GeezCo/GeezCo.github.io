@@ -136,10 +136,8 @@ html.dark body {
   border: 1px solid #d0d7de;
 }
 
-/* 浅色模式 - 使用 Shiki 的 CSS 变量（有语法高亮的代码块会覆盖后备样式） */
-.prose .astro-code,
-.prose .astro-code span {
-  color: var(--shiki-light, #24292f) !important;
+/* 浅色模式 - 只设置容器背景色，让 Shiki 的内联样式控制文字颜色 */
+.prose .astro-code {
   background-color: var(--shiki-light-bg, #f6f8fa) !important;
 }
 
