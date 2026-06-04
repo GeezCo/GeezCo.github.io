@@ -1,0 +1,7 @@
+{"type": "spec", "path": ".trellis/tasks/05-28-optimize-homepage-article-display/prd.md"}
+{"type": "file", "path": "src/pages/index.astro"}
+{"type": "file", "path": "src/pages/tools/index.astro"}
+{"type": "file", "path": "src/components/PostCard.astro"}
+{"type": "file", "path": "src/layouts/BaseLayout.astro"}
+{"type": "file", "path": "src/content/config.ts"}
+{"type": "file", "path": "src/components/Header.astro"}

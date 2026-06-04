@@ -1,0 +1,155 @@
+---
+import { getCollection, render } from 'astro:content';
+import DocLayout from '../../../layouts/DocLayout.astro';
+
+export async function getStaticPaths() {
+  const docs = await getCollection('docs');
+
+  return docs
+    .filter((doc) => doc.id && doc.id.includes('/')) // 确保 id 存在且包含 /
+    .map((doc) => {
+      const [system, ...slugParts] = doc.id.split('/');
+      const slug = slugParts.join('/') || 'index';
+
+      return {
+        params: { system, slug },
+        props: { doc },
+      };
+    });
+}
+
+const { system, slug } = Astro.params;
+const { doc } = Astro.props;
+
+// 渲染文档内容
+const { Content, headings } = await render(doc);
+
+// 获取同系统的所有文档
+const allDocs = await getCollection('docs', ({ id: docId }) => {
+  return docId && docId.startsWith(`${system}/`);
+});
+
+// 构建导航树
+interface NavItem {
+  title: string;
+  slug: string;
+  order: number;
+  children?: NavItem[];
+}
+
+function buildNavTree(docs: typeof allDocs): NavItem[] {
+  const tree: NavItem[] = [];
+  const map = new Map<string, NavItem>();
+
+  // 按路径排序
+  const sortedDocs = docs.sort((a, b) => {
+    const orderA = a.data.order ?? 999;
+    const orderB = b.data.order ?? 999;
+    if (orderA !== orderB) return orderA - orderB;
+    return a.id.localeCompare(b.id);
+  });
+
+  sortedDocs.forEach((d) => {
+    const parts = d.id.split('/').slice(1); // 移除 system 前缀
+    const itemSlug = parts.join('/') || 'index';
+
+    const item: NavItem = {
+      title: d.data.title,
+      slug: itemSlug,
+      order: d.data.order ?? 999,
+    };
+
+    if (parts.length === 1 || (parts.length === 0 && itemSlug === 'index')) {
+      // 顶层文档
+      tree.push(item);
+      map.set(itemSlug, item);
+    } else {
+      // 子文档
+      const parentSlug = parts.slice(0, -1).join('/');
+      const parent = map.get(parentSlug);
+
+      if (parent) {
+        if (!parent.children) parent.children = [];
+        parent.children.push(item);
+      } else {
+        // 如果找不到父级，放到顶层
+        tree.push(item);
+      }
+      map.set(itemSlug, item);
+    }
+  });
+
+  return tree;
+}
+
+const navTree = buildNavTree(allDocs);
+
+// 构建面包屑
+const breadcrumbs = [
+  { title: '首页', href: '/' },
+  { title: '文档', href: '/doc' },
+  { title: system, href: `/doc/${system}` },
+];
+
+if (slug !== 'index') {
+  breadcrumbs.push({ title: doc.data.title, href: `/doc/${system}/${slug}` });
+}
+
+// 扁平化导航树用于上下页
+function flattenNav(items: NavItem[], result: NavItem[] = []): NavItem[] {
+  items.forEach((item) => {
+    result.push(item);
+    if (item.children) {
+      flattenNav(item.children, result);
+    }
+  });
+  return result;
+}
+
+const flatNav = flattenNav(navTree);
+const currentIndex = flatNav.findIndex((item) => item.slug === slug);
+const prev = currentIndex > 0 ? {
+  title: flatNav[currentIndex - 1].title,
+  href: `/doc/${system}/${flatNav[currentIndex - 1].slug}`,
+} : undefined;
+const next = currentIndex < flatNav.length - 1 ? {
+  title: flatNav[currentIndex + 1].title,
+  href: `/doc/${system}/${flatNav[currentIndex + 1].slug}`,
+} : undefined;
+
+// Git 信息
+let lastModified: string | undefined;
+let editUrl: string | undefined;
+
+try {
+  const { execSync } = await import('child_process');
+  const filePath = `src/content/docs/${doc.id}.md`;
+  const gitDate = execSync(`git log -1 --format=%ai "${filePath}"`, { encoding: 'utf-8' }).trim();
+  if (gitDate) {
+    lastModified = new Date(gitDate).toLocaleDateString('zh-CN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  }
+  editUrl = `https://github.com/GeezCo/GeezCo.github.io/edit/main/${filePath}`;
+} catch (e) {
+  // Git 信息获取失败时忽略
+}
+---
+
+<DocLayout
+  title={doc.data.title}
+  description={doc.data.description}
+  system={system}
+  currentSlug={slug}
+  navTree={navTree}
+  headings={headings}
+  breadcrumbs={breadcrumbs}
+  prev={prev}
+  next={next}
+  lastModified={lastModified}
+  editUrl={editUrl}
+>
+  <Content />
+</DocLayout>

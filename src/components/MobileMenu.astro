@@ -1,0 +1,249 @@
+---
+// 移动端汉堡菜单组件 - 侧边抽屉
+const navItems = [
+  { href: '/', label: '首页', icon: '🏠' },
+  { href: '/blog', label: '博客', icon: '📝' },
+  { href: '/doc', label: '文档', icon: '📚' },
+  { href: '/tools', label: '工具', icon: '🛠️' },
+  { href: '/about', label: '关于', icon: '👤' },
+  { href: '/sponsor', label: '赞赏', icon: '❤️' }
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="打开菜单">
+  <svg class="menu-icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+    <line x1="3" y1="12" x2="21" y2="12"/>
+    <line x1="3" y1="6" x2="21" y2="6"/>
+    <line x1="3" y1="18" x2="21" y2="18"/>
+  </svg>
+</button>
+
+<div class="mobile-menu-overlay" id="mobile-menu-overlay"></div>
+
+<div class="mobile-menu-drawer" id="mobile-menu-drawer">
+  <div class="mobile-menu-header">
+    <span class="mobile-menu-title">导航菜单</span>
+    <button class="mobile-menu-close" id="mobile-menu-close" aria-label="关闭菜单">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+  <nav class="mobile-menu-nav">
+    {navItems.map(item => (
+      <a
+        href={item.href}
+        class={`mobile-menu-item ${currentPath === item.href || (item.href !== '/' && currentPath.startsWith(item.href)) ? 'active' : ''}`}
+      >
+        <span class="mobile-menu-icon">{item.icon}</span>
+        <span class="mobile-menu-label">{item.label}</span>
+      </a>
+    ))}
+  </nav>
+</div>
+
+<style>
+  /* 移动端切换按钮 */
+  .mobile-menu-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: var(--color-ink);
+    transition: color 0.2s;
+  }
+
+  :global(html.dark) .mobile-menu-toggle {
+    color: var(--color-dark-text);
+  }
+
+  .mobile-menu-toggle:hover {
+    color: var(--color-primary);
+  }
+
+  @media (max-width: 768px) {
+    .mobile-menu-toggle {
+      display: block;
+    }
+  }
+
+  /* 遮罩层 */
+  .mobile-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 998;
+  }
+
+  .mobile-menu-overlay.open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* 侧边抽屉 */
+  .mobile-menu-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 280px;
+    max-width: 85vw;
+    background: white;
+    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+  }
+
+  :global(html.dark) .mobile-menu-drawer {
+    background: var(--color-dark-surface);
+    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .mobile-menu-drawer.open {
+    transform: translateX(0);
+  }
+
+  /* 抽屉头部 */
+  .mobile-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  :global(html.dark) .mobile-menu-header {
+    border-bottom-color: var(--color-dark-border);
+  }
+
+  .mobile-menu-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  :global(html.dark) .mobile-menu-title {
+    color: var(--color-dark-text);
+  }
+
+  .mobile-menu-close {
+    background: transparent;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: var(--color-ink-mute);
+    transition: color 0.2s;
+  }
+
+  :global(html.dark) .mobile-menu-close {
+    color: var(--color-dark-text-muted);
+  }
+
+  .mobile-menu-close:hover {
+    color: var(--color-primary);
+  }
+
+  /* 导航列表 */
+  .mobile-menu-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+  }
+
+  .mobile-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--rounded-md);
+    text-decoration: none;
+    color: var(--color-ink);
+    font-size: 0.9375rem;
+    transition: background-color 0.2s;
+    margin-bottom: 0.5rem;
+  }
+
+  :global(html.dark) .mobile-menu-item {
+    color: var(--color-dark-text);
+  }
+
+  .mobile-menu-item:hover {
+    background: var(--color-canvas-soft);
+  }
+
+  :global(html.dark) .mobile-menu-item:hover {
+    background: var(--color-dark-bg-soft);
+  }
+
+  .mobile-menu-item.active {
+    background: rgba(83, 58, 253, 0.1);
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  :global(html.dark) .mobile-menu-item.active {
+    background: rgba(83, 58, 253, 0.2);
+  }
+
+  .mobile-menu-icon {
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  .mobile-menu-label {
+    flex: 1;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const toggle = document.getElementById('mobile-menu-toggle');
+    const overlay = document.getElementById('mobile-menu-overlay');
+    const drawer = document.getElementById('mobile-menu-drawer');
+    const close = document.getElementById('mobile-menu-close');
+
+    if (!toggle || !overlay || !drawer || !close) return;
+
+    const openMenu = () => {
+      overlay.classList.add('open');
+      drawer.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    };
+
+    const closeMenu = () => {
+      overlay.classList.remove('open');
+      drawer.classList.remove('open');
+      document.body.style.overflow = '';
+    };
+
+    toggle.addEventListener('click', openMenu);
+    close.addEventListener('click', closeMenu);
+    overlay.addEventListener('click', closeMenu);
+
+    // 点击导航项后关闭菜单
+    const menuItems = drawer.querySelectorAll('.mobile-menu-item');
+    menuItems.forEach(item => {
+      item.addEventListener('click', closeMenu);
+    });
+
+    // ESC 键关闭菜单
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && drawer.classList.contains('open')) {
+        closeMenu();
+      }
+    });
+  });
+</script>

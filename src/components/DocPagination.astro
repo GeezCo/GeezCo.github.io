@@ -1,0 +1,111 @@
+---
+interface PageLink {
+  title: string;
+  href: string;
+}
+
+interface Props {
+  prev?: PageLink;
+  next?: PageLink;
+}
+
+const { prev, next } = Astro.props;
+---
+
+{(prev || next) && (
+  <nav class="doc-pagination">
+    {prev && (
+      <a href={prev.href} class="pagination-link prev">
+        <span class="pagination-label">上一页</span>
+        <span class="pagination-title">{prev.title}</span>
+      </a>
+    )}
+    {next && (
+      <a href={next.href} class="pagination-link next">
+        <span class="pagination-label">下一页</span>
+        <span class="pagination-title">{next.title}</span>
+      </a>
+    )}
+  </nav>
+)}
+
+<style>
+  .doc-pagination {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e5e7eb;
+  }
+  :global(html.dark) .doc-pagination {
+    border-top-color: #27272a;
+  }
+
+  .pagination-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .pagination-link:hover {
+    border-color: #3b82f6;
+    background: #fafafa;
+  }
+  :global(html.dark) .pagination-link {
+    border-color: #27272a;
+  }
+  :global(html.dark) .pagination-link:hover {
+    border-color: #60a5fa;
+    background: #27272a;
+  }
+
+  .pagination-link.prev {
+    text-align: left;
+  }
+
+  .pagination-link.next {
+    text-align: right;
+    grid-column: 2;
+  }
+
+  .pagination-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #71717a;
+  }
+  :global(html.dark) .pagination-label {
+    color: #a1a1aa;
+  }
+
+  .pagination-title {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #18181b;
+  }
+  :global(html.dark) .pagination-title {
+    color: #fafafa;
+  }
+
+  /* 只有一个链接时占满整行 */
+  .pagination-link:only-child {
+    grid-column: 1 / -1;
+  }
+
+  /* 移动端 */
+  @media (max-width: 767px) {
+    .doc-pagination {
+      grid-template-columns: 1fr;
+    }
+
+    .pagination-link.next {
+      grid-column: 1;
+    }
+  }
+</style>

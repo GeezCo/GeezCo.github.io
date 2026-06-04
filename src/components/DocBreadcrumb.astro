@@ -1,0 +1,91 @@
+---
+interface BreadcrumbItem {
+  title: string;
+  href: string;
+}
+
+interface Props {
+  items: BreadcrumbItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<nav class="breadcrumb" aria-label="面包屑导航">
+  <ol class="breadcrumb-list">
+    {items.map((item, index) => (
+      <li class="breadcrumb-item">
+        {index < items.length - 1 ? (
+          <>
+            <a href={item.href} class="breadcrumb-link">
+              {item.title}
+            </a>
+            <span class="breadcrumb-separator">/</span>
+          </>
+        ) : (
+          <span class="breadcrumb-current">{item.title}</span>
+        )}
+      </li>
+    ))}
+  </ol>
+</nav>
+
+<style>
+  .breadcrumb {
+    padding: 1rem 0;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 2rem;
+  }
+  :global(html.dark) .breadcrumb {
+    border-bottom-color: #27272a;
+  }
+
+  .breadcrumb-list {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .breadcrumb-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .breadcrumb-link {
+    color: #71717a;
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 0.2s;
+  }
+  .breadcrumb-link:hover {
+    color: #3b82f6;
+  }
+  :global(html.dark) .breadcrumb-link {
+    color: #a1a1aa;
+  }
+  :global(html.dark) .breadcrumb-link:hover {
+    color: #60a5fa;
+  }
+
+  .breadcrumb-separator {
+    color: #d4d4d8;
+    font-size: 0.875rem;
+  }
+  :global(html.dark) .breadcrumb-separator {
+    color: #52525b;
+  }
+
+  .breadcrumb-current {
+    color: #18181b;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  :global(html.dark) .breadcrumb-current {
+    color: #fafafa;
+  }
+</style>

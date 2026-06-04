@@ -1,0 +1,261 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+// 文档系统列表
+const docSystems = [
+  {
+    id: "gzDoc",
+    title: "GzDoc",
+    description: "企业级智能文档处理平台，基于 AI 的智能文档管理与问答系统",
+    icon: "📚",
+  },
+];
+---
+
+<BaseLayout title="文档中心" description="系统文档中心">
+  <section class="doc-index">
+    <div class="container">
+      <div class="doc-header">
+        <h1>📚 文档中心</h1>
+        <p class="doc-subtitle">系统文档与开发指南</p>
+      </div>
+
+      {docSystems.length === 0 ? (
+        <div class="empty-state">
+          <div class="empty-icon">🚧</div>
+          <h2>文档系统建设中</h2>
+          <p>我们正在努力完善文档系统，敬请期待...</p>
+          <div class="empty-actions">
+            <a href="/" class="btn-primary">返回首页</a>
+            <a href="/blog" class="btn-secondary">查看博客</a>
+          </div>
+        </div>
+      ) : (
+        <div class="docs-grid">
+          {docSystems.map((system) => (
+            <a href={`/doc/${system.id}/index`} class="doc-card">
+              <div class="doc-icon">{system.icon}</div>
+              <h2>{system.title}</h2>
+              <p>{system.description}</p>
+              <div class="doc-arrow">→</div>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .doc-index {
+    background: linear-gradient(to bottom, #fafafa, #ffffff);
+    min-height: 80vh;
+    padding: 3rem 1rem;
+  }
+  :global(html.dark) .doc-index {
+    background: linear-gradient(to bottom, #18181b, #27272a);
+  }
+
+  .container {
+    max-width: 72rem;
+    margin: 0 auto;
+  }
+
+  .doc-header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+
+  .doc-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #18181b;
+    margin-bottom: 0.5rem;
+  }
+  :global(html.dark) .doc-header h1 {
+    color: #fafafa;
+  }
+
+  .doc-subtitle {
+    font-size: 1.125rem;
+    color: #71717a;
+  }
+  :global(html.dark) .doc-subtitle {
+    color: #a1a1aa;
+  }
+
+  /* 空状态 */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    max-width: 36rem;
+    margin: 0 auto;
+  }
+
+  .empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .empty-state h2 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #18181b;
+    margin-bottom: 1rem;
+  }
+  :global(html.dark) .empty-state h2 {
+    color: #fafafa;
+  }
+
+  .empty-state p {
+    font-size: 1.125rem;
+    color: #71717a;
+    margin-bottom: 2rem;
+  }
+  :global(html.dark) .empty-state p {
+    color: #a1a1aa;
+  }
+
+  .empty-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    display: inline-block;
+    padding: 0.75rem 2rem;
+    background: #3b82f6;
+    color: white;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  .btn-primary:hover {
+    background: #4f46e5;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  }
+  :global(html.dark) .btn-primary {
+    background: #60a5fa;
+  }
+  :global(html.dark) .btn-primary:hover {
+    background: #3b82f6;
+  }
+
+  .btn-secondary {
+    display: inline-block;
+    padding: 0.75rem 2rem;
+    background: white;
+    color: #3b82f6;
+    border: 2px solid #3b82f6;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  .btn-secondary:hover {
+    background: #eef2ff;
+    transform: translateY(-2px);
+  }
+  :global(html.dark) .btn-secondary {
+    background: transparent;
+    color: #60a5fa;
+    border-color: #60a5fa;
+  }
+  :global(html.dark) .btn-secondary:hover {
+    background: rgba(129, 140, 248, 0.1);
+  }
+
+  /* 文档卡片网格（未来使用） */
+  .docs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+
+  .doc-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .doc-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  }
+  :global(html.dark) .doc-card {
+    background: rgba(39, 39, 42, 0.7);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  }
+  :global(html.dark) .doc-card:hover {
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+  }
+
+  .doc-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .doc-card h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #18181b;
+    margin-bottom: 0.75rem;
+  }
+  :global(html.dark) .doc-card h2 {
+    color: #fafafa;
+  }
+
+  .doc-card p {
+    color: #71717a;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    flex-grow: 1;
+  }
+  :global(html.dark) .doc-card p {
+    color: #a1a1aa;
+  }
+
+  .doc-arrow {
+    position: absolute;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    font-size: 1.5rem;
+    color: #d4d4d8;
+    transition: all 0.3s ease;
+  }
+  .doc-card:hover .doc-arrow {
+    color: #3b82f6;
+    transform: translateX(4px);
+  }
+  :global(html.dark) .doc-arrow {
+    color: #52525b;
+  }
+  :global(html.dark) .doc-card:hover .doc-arrow {
+    color: #60a5fa;
+  }
+
+  @media (max-width: 768px) {
+    .doc-header h1 {
+      font-size: 2rem;
+    }
+    .empty-state h2 {
+      font-size: 1.5rem;
+    }
+    .empty-actions {
+      flex-direction: column;
+    }
+    .btn-primary,
+    .btn-secondary {
+      width: 100%;
+    }
+  }
+</style>

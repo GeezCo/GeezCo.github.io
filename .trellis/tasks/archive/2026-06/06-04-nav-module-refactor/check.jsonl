@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/portal/ui-components.md", "reason": "UI组件规范：验证组件符合现有模式"}
+{"file": ".trellis/spec/portal/design-system.md", "reason": "设计系统：检查CSS变量使用和暗黑模式"}
+{"file": "src/components/Header.astro", "reason": "检查Header重构是否正确集成"}
+{"file": "src/styles/global.css", "reason": "验证没有CSS冲突"}

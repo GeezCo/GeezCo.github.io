@@ -1,0 +1,1 @@
+{"role": "user", "content": "验证上下文：\n- 检查 src/pages/doc/[system]/[...slug].astro 是否正确渲染文档\n- 检查 DocLayout.astro 三栏布局是否正常\n- 检查侧边栏目录树是否正确生成\n- 检查 TOC 是否正确提取标题\n- 检查移动端汉堡菜单是否工作\n- 检查深色模式是否适配"}

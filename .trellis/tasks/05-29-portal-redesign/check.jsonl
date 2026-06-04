@@ -1,0 +1,5 @@
+{"path": ".trellis/tasks/05-29-portal-redesign/prd.md", "reason": "验收标准"}
+{"path": "src/pages/index.astro", "reason": "检查首页 Hero 渐变和样式"}
+{"path": "src/components/Header.astro", "reason": "检查导航栏升级"}
+{"path": "src/layouts/BaseLayout.astro", "reason": "检查 CSS 变量定义"}
+{"path": "DESIGN.md", "reason": "检查设计系统文档"}

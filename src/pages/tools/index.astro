@@ -1,29 +1,9 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
-const tools = [
-  {
-    name: "Mermaid 图表",
-    icon: "📊",
-    description: "将 Mermaid 代码转换为 SVG/PNG 图表",
-    url: "/tools/mermaid",
-    color: "from-blue-500 to-cyan-500"
-  },
-  {
-    name: "SVG 转换",
-    icon: "🖼️",
-    description: "将 SVG 文件转换为 PNG/JPG 图片",
-    url: "/tools/svg-convert",
-    color: "from-purple-500 to-pink-500"
-  },
-  {
-    name: "ASCII Art",
-    icon: "🎨",
-    description: "将 ASCII 文本图转换为 SVG 矢量图",
-    url: "/tools/ascii-art",
-    color: "from-green-500 to-emerald-500"
-  }
-];
+// 自动读取所有工具配置
+const toolModules = import.meta.glob('../../data/tools/*.json', { eager: true });
+const tools = Object.values(toolModules).map((mod: any) => mod.default);
 ---
 
 <BaseLayout title="工具箱" description="在线工具集合">
@@ -43,6 +23,15 @@ const tools = [
             <div class="tool-arrow">→</div>
           </a>
         ))}
+
+        <!-- 即将上线预告框 -->
+        <div class="tool-card coming-soon">
+          <div class="tool-icon">
+            <span>⏳</span>
+          </div>
+          <h2>即将上线</h2>
+          <p>更多实用工具正在开发中，敬请期待...</p>
+        </div>
       </div>
     </div>
   </section>
@@ -155,14 +144,68 @@ const tools = [
     transition: all 0.3s ease;
   }
   .tool-card:hover .tool-arrow {
-    color: #6366f1;
+    color: #3b82f6;
     transform: translateX(4px);
   }
   :global(html.dark) .tool-arrow {
     color: #52525b;
   }
   :global(html.dark) .tool-card:hover .tool-arrow {
-    color: #818cf8;
+    color: #60a5fa;
+  }
+
+  /* 即将上线预告框 */
+  .coming-soon {
+    background: rgba(200, 200, 200, 0.3) !important;
+    border: 2px dashed #d4d4d8;
+    opacity: 0.7;
+    cursor: default;
+    pointer-events: none;
+  }
+  .coming-soon:hover {
+    transform: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  .coming-soon .tool-icon {
+    background: rgba(156, 163, 175, 0.3) !important;
+  }
+  .coming-soon .tool-arrow {
+    display: none;
+  }
+
+  :global(html.dark) .coming-soon {
+    background: rgba(63, 63, 70, 0.3) !important;
+    border-color: #52525b;
+  }
+  :global(html.dark) .coming-soon .tool-icon {
+    background: rgba(82, 82, 91, 0.3) !important;
+  }
+
+  /* 即将上线预告框 */
+  .coming-soon {
+    background: rgba(200, 200, 200, 0.3) !important;
+    border: 2px dashed #d4d4d8;
+    opacity: 0.7;
+    cursor: default;
+    pointer-events: none;
+  }
+  .coming-soon:hover {
+    transform: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  .coming-soon .tool-icon {
+    background: rgba(156, 163, 175, 0.3) !important;
+  }
+  .coming-soon .tool-arrow {
+    display: none;
+  }
+
+  :global(html.dark) .coming-soon {
+    background: rgba(63, 63, 70, 0.3) !important;
+    border-color: #52525b;
+  }
+  :global(html.dark) .coming-soon .tool-icon {
+    background: rgba(82, 82, 91, 0.3) !important;
   }
 
   @media (max-width: 768px) {

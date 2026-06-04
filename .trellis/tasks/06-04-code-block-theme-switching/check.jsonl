@@ -1,0 +1,2 @@
+{"category": "research", "path": ".trellis/tasks/06-04-code-block-theme-switching/research/astro-shiki-dual-theme.md", "why": "验证实现是否符合 Shiki 最佳实践"}
+{"category": "spec", "path": ".trellis/tasks/06-04-code-block-theme-switching/prd.md", "why": "验收标准：主题切换、样式保留"}

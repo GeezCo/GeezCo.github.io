@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/portal/ui-components.md", "reason": "UI组件规范：了解现有组件模式"}
+{"file": ".trellis/spec/portal/design-system.md", "reason": "设计系统：CSS变量、颜色、间距规范"}
+{"file": "src/components/Header.astro", "reason": "当前Header组件实现"}
+{"file": "src/components/ThemeToggle.astro", "reason": "主题切换组件参考"}
+{"file": "src/styles/global.css", "reason": "全局CSS变量和暗黑模式样式"}

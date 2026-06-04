@@ -1,7 +1,7 @@
 export const site = {
-  title: "Wincy 的博客",
-  description: "记录技术与生活",
-  author: "Wincy",
+  title: "GeezCo",
+  description: "技术分享与开源项目门户",
+  author: "GeezCo",
   lang: "zh-CN",
-  url: "https://processmonitor.github.io",
+  url: "https://geezco.github.io",
 };

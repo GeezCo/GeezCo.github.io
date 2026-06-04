@@ -11,9 +11,9 @@ export const themePresets = {
   // 默认：紫蓝色渐变
   indigo: {
     name: '紫蓝',
-    primary: '#6366f1',
+    primary: '#3b82f6',
     primaryDark: '#4f46e5',
-    secondary: '#8b5cf6',
+    secondary: '#3b82f6',
     accent: '#f59e0b',
     gradientFrom: 'indigo-50',
     gradientTo: 'purple-50',
@@ -108,8 +108,8 @@ export const customColors = {
   // 启用自定义颜色时，设置为 true
   enabled: false,
 
-  primary: '#6366f1',
+  primary: '#3b82f6',
   primaryDark: '#4f46e5',
-  secondary: '#8b5cf6',
+  secondary: '#3b82f6',
   accent: '#f59e0b',
 };

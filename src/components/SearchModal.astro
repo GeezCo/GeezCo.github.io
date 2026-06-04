@@ -10,6 +10,21 @@
       <input type="text" id="search-input" placeholder="搜索文章..." autocomplete="off" />
       <kbd class="search-kbd">Esc</kbd>
     </div>
+    <div class="search-sort-bar">
+      <label for="search-sort" class="sort-label">排序：</label>
+      <select id="search-sort" class="search-sort-select">
+        <option value="relevance">相关性</option>
+        <option value="title">根据标题</option>
+        <option value="content">根据内容</option>
+        <option value="date">最新发布</option>
+      </select>
+    </div>
+    <div id="search-loading" class="search-loading">
+      <svg class="spinner" viewBox="0 0 50 50">
+        <circle cx="25" cy="25" r="20" stroke-linecap="round"/>
+      </svg>
+      <span>搜索中...</span>
+    </div>
     <div id="search-results"></div>
     <div id="search-empty" class="search-empty">输入关键词开始搜索</div>
   </div>
@@ -21,8 +36,15 @@
     const input = document.getElementById('search-input');
     const results = document.getElementById('search-results');
     const empty = document.getElementById('search-empty');
+    const loading = document.getElementById('search-loading');
+    const sortSelect = document.getElementById('search-sort');
 
     let pagefind = null;
+    let allResults = []; // 存储所有搜索结果
+    let displayedCount = 0; // 已显示的结果数量
+    const RESULTS_PER_PAGE = 10; // 每次加载 10 条
+    let currentSort = 'relevance'; // 当前排序方式
+    let currentQuery = ''; // 当前搜索关键词
 
     // 初始化 Pagefind - 使用 ES Module 动态导入
     async function initPagefind() {
@@ -53,55 +75,85 @@
       overlay.classList.remove('active');
       input.value = '';
       results.innerHTML = '';
+      allResults = [];
+      displayedCount = 0;
+      currentQuery = '';
+      loading.style.display = 'none';
       empty.textContent = '输入关键词开始搜索';
       empty.style.display = 'block';
       document.body.style.overflow = '';
+      // 重置排序为相关性
+      sortSelect.value = 'relevance';
+      currentSort = 'relevance';
     }
 
-    // 搜索
-    let debounceTimer;
-    async function doSearch(query) {
-      if (!pagefind) return;
-      if (!query.trim()) {
-        results.innerHTML = '';
-        empty.textContent = '输入关键词开始搜索';
-        empty.style.display = 'block';
-        return;
+    // 高亮标题中的关键词
+    function highlightTitle(title, query) {
+      if (!query) return title;
+      const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      return title.replace(regex, '<mark>$1</mark>');
+    }
+
+    // 排序函数
+    function sortResults(results, sortBy, query) {
+      const sorted = [...results];
+      switch(sortBy) {
+        case 'relevance':
+          return sorted.sort((a, b) => b.score - a.score);
+        case 'title':
+          return sorted.sort((a, b) => {
+            const aMatch = a.meta.title.toLowerCase().includes(query.toLowerCase());
+            const bMatch = b.meta.title.toLowerCase().includes(query.toLowerCase());
+            if (aMatch && !bMatch) return -1;
+            if (!aMatch && bMatch) return 1;
+            return b.score - a.score; // 相同则按相关性
+          });
+        case 'content':
+          return sorted.sort((a, b) => {
+            const aMatch = a.excerpt.toLowerCase().includes(query.toLowerCase());
+            const bMatch = b.excerpt.toLowerCase().includes(query.toLowerCase());
+            if (aMatch && !bMatch) return -1;
+            if (!aMatch && bMatch) return 1;
+            return b.score - a.score; // 相同则按相关性
+          });
+        case 'date':
+          return sorted.sort((a, b) => {
+            const dateA = new Date(a.meta.pubDate || a.meta.date || '1970-01-01');
+            const dateB = new Date(b.meta.pubDate || b.meta.date || '1970-01-01');
+            return dateB - dateA;
+          });
+        default:
+          return sorted;
       }
+    }
 
-      // 使用正确的 Pagefind API: search() 方法
-      const search = await pagefind.search(query);
+    // 渲染搜索结果（分块）
+    function renderResults(startIndex = 0) {
+      const endIndex = Math.min(startIndex + RESULTS_PER_PAGE, allResults.length);
+      const resultsToShow = allResults.slice(startIndex, endIndex);
 
-      if (!search || !search.results || search.results.length === 0) {
-        results.innerHTML = '';
-        empty.textContent = '未找到相关文章';
-        empty.style.display = 'block';
-        return;
-      }
-
-      const searchResults = search.results.slice(0, 8);
-      empty.style.display = 'none';
-
-      // 加载每个结果的完整数据
-      const data = await Promise.all(searchResults.map(r => r.data()));
-      results.innerHTML = data.map(d => {
+      const html = resultsToShow.map(d => {
         // 提取标签和日期
         const tags = d.meta.tags ? d.meta.tags.split(',').slice(0, 3) : [];
-        const date = d.meta.date || '';
+        const date = d.meta.pubDate || d.meta.date || '';
 
-        // 清理摘要：移除 mark 标签，限制长度
+        // 处理摘要：只保留匹配的内容片段
         let excerpt = d.excerpt || '';
-        excerpt = excerpt.replace(/<\/?mark>/g, '');
-        excerpt = excerpt.replace(/<[^>]+>/g, ''); // 移除所有 HTML 标签
-        if (excerpt.length > 120) {
-          excerpt = excerpt.substring(0, 120) + '...';
+        // 移除其他 HTML 标签但保留 mark
+        excerpt = excerpt.replace(/<(?!\/?(mark))[^>]+>/g, '');
+        // 限制长度
+        if (excerpt.length > 150) {
+          excerpt = excerpt.substring(0, 150) + '...';
         }
+
+        // 高亮标题
+        const highlightedTitle = highlightTitle(d.meta.title || '无标题', currentQuery);
 
         return `
           <a href="${d.url}" class="search-result-item">
             <div class="search-result-header">
               <span class="search-result-icon">📄</span>
-              <span class="search-result-title">${d.meta.title || '无标题'}</span>
+              <h3 class="search-result-title">${highlightedTitle}</h3>
             </div>
             ${excerpt ? `<p class="search-result-excerpt">${excerpt}</p>` : ''}
             <div class="search-result-meta">
@@ -115,17 +167,122 @@
           </a>
         `;
       }).join('');
+
+      // 如果是第一次渲染，清空容器
+      if (startIndex === 0) {
+        results.innerHTML = html;
+      } else {
+        // 追加新结果
+        results.insertAdjacentHTML('beforeend', html);
+      }
+
+      displayedCount = endIndex;
+
+      // 移除旧的"加载更多"按钮
+      const oldBtn = document.getElementById('load-more-btn');
+      if (oldBtn) oldBtn.remove();
+
+      // 如果还有更多结果，添加"加载更多"按钮
+      if (displayedCount < allResults.length) {
+        const loadMoreBtn = document.createElement('button');
+        loadMoreBtn.id = 'load-more-btn';
+        loadMoreBtn.className = 'load-more-btn';
+        loadMoreBtn.textContent = `加载更多 (${allResults.length - displayedCount} 条剩余)`;
+        loadMoreBtn.onclick = () => renderResults(displayedCount);
+        results.appendChild(loadMoreBtn);
+      }
     }
 
-    // 事件
-    input.addEventListener('input', () => {
+    // 搜索
+    let debounceTimer;
+    async function doSearch(query) {
+      if (!pagefind) return;
+      if (!query.trim()) {
+        results.innerHTML = '';
+        allResults = [];
+        displayedCount = 0;
+        currentQuery = '';
+        loading.style.display = 'none';
+        empty.textContent = '输入关键词开始搜索';
+        empty.style.display = 'block';
+        return;
+      }
+
+      currentQuery = query;
+
+      // 显示加载状态
+      loading.style.display = 'flex';
+      empty.style.display = 'none';
+      results.innerHTML = '';
+
+      try {
+        const search = await pagefind.search(query);
+
+        // 隐藏加载状态
+        loading.style.display = 'none';
+
+        if (search.results.length === 0) {
+          results.innerHTML = '';
+          allResults = [];
+          displayedCount = 0;
+          empty.textContent = '未找到相关文章';
+          empty.style.display = 'block';
+          return;
+        }
+
+        // 获取所有结果的详细数据
+        const data = await Promise.all(
+          search.results.map(r => r.data())
+        );
+
+        // 添加 score 到数据中
+        const dataWithScore = data.map((d, i) => ({
+          ...d,
+          score: search.results[i].score
+        }));
+
+        // 排序并存储
+        allResults = sortResults(dataWithScore, currentSort, query);
+        displayedCount = 0;
+
+        // 渲染第一批结果
+        renderResults(0);
+
+      } catch (error) {
+        console.error('搜索出错:', error);
+        loading.style.display = 'none';
+        empty.textContent = '搜索出错，请重试';
+        empty.style.display = 'block';
+      }
+    }
+
+    // 输入防抖
+    input.addEventListener('input', (e) => {
       clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => doSearch(input.value), 200);
+      debounceTimer = setTimeout(() => {
+        doSearch(e.target.value);
+      }, 300);
     });
 
-    // 快捷键
+    // 排序切换
+    sortSelect.addEventListener('change', (e) => {
+      const newSort = e.target.value;
+      if (newSort === currentSort) return;
+
+      currentSort = newSort;
+
+      // 重新排序并渲染
+      if (allResults.length > 0) {
+        allResults = sortResults(allResults, currentSort, currentQuery);
+        displayedCount = 0;
+        results.innerHTML = '';
+        renderResults(0);
+      }
+    });
+
+    // 快捷键 Cmd/Ctrl + K
     document.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         open();
       }
@@ -136,12 +293,13 @@
 
     // 点击遮罩关闭
     overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) close();
+      if (e.target === overlay) {
+        close();
+      }
     });
 
-    // 暴露到全局
-    window.__searchOpen = open;
-    window.__searchClose = close;
+    // 暴露给全局（供 Header 调用）
+    window.openSearch = open;
   });
 </script>
 
@@ -222,63 +380,151 @@
     border-color: #52525b;
   }
 
+  /* 排序栏 */
+  :global(.search-sort-bar) {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid #e4e4e7;
+    background: #fafafa;
+  }
+  :global(html.dark) :global(.search-sort-bar) {
+    border-bottom-color: #3f3f46;
+    background: #18181b;
+  }
+
+  :global(.sort-label) {
+    font-size: 0.85rem;
+    color: #71717a;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  :global(html.dark) :global(.sort-label) {
+    color: #a1a1aa;
+  }
+
+  :global(.search-sort-select) {
+    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    border: 1px solid #e4e4e7;
+    border-radius: 0.375rem;
+    background: #ffffff;
+    color: #18181b;
+    cursor: pointer;
+    font-family: inherit;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%2371717a' d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 1rem;
+    transition: all 0.2s;
+  }
+  :global(.search-sort-select:hover) {
+    border-color: #4f46e5;
+  }
+  :global(.search-sort-select:focus) {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  }
+  :global(html.dark) :global(.search-sort-select) {
+    border-color: #3f3f46;
+    background-color: #27272a;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23a1a1aa' d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+    color: #fafafa;
+  }
+  :global(html.dark) :global(.search-sort-select:hover) {
+    border-color: #60a5fa;
+  }
+  :global(html.dark) :global(.search-sort-select:focus) {
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.1);
+  }
+
   #search-results {
     overflow-y: auto;
     max-height: 50vh;
+    padding: 0.5rem;
   }
 
-  .search-result-item {
+  /* 搜索结果卡片 */
+  :global(.search-result-item) {
     display: block;
-    padding: 1rem 1.25rem;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
     text-decoration: none;
     transition: all 0.2s;
-    border-bottom: 1px solid #f4f4f5;
+    border: 1px solid #e4e4e7;
+    border-radius: 0.5rem;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
-  :global(html.dark) .search-result-item {
-    border-bottom-color: #3f3f46;
+  :global(html.dark) :global(.search-result-item) {
+    border-color: #3f3f46;
+    background: #27272a;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   }
-  .search-result-item:hover {
-    background-color: #f9fafb;
-    transform: translateX(4px);
+  :global(.search-result-item:hover) {
+    border-color: #4f46e5;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+    transform: translateY(-2px);
   }
-  :global(html.dark) .search-result-item:hover {
-    background-color: #3f3f46;
+  :global(html.dark) :global(.search-result-item:hover) {
+    border-color: #3b82f6;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  }
+  :global(.search-result-item:last-child) {
+    margin-bottom: 0;
   }
 
-  .search-result-header {
+  :global(.search-result-header) {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     margin-bottom: 0.5rem;
   }
 
-  .search-result-icon {
+  :global(.search-result-icon) {
     font-size: 1rem;
     flex-shrink: 0;
   }
 
-  .search-result-title {
+  :global(.search-result-title) {
     font-size: 0.95rem;
     font-weight: 600;
     color: #18181b;
     line-height: 1.4;
+    margin: 0;
   }
-  :global(html.dark) .search-result-title {
+  :global(html.dark) :global(.search-result-title) {
     color: #fafafa;
   }
 
-  .search-result-excerpt {
+  :global(.search-result-excerpt) {
     font-size: 0.85rem;
     color: #71717a;
     line-height: 1.5;
     margin-bottom: 0.5rem;
     padding-left: 1.5rem;
   }
-  :global(html.dark) .search-result-excerpt {
+  :global(html.dark) :global(.search-result-excerpt) {
     color: #a1a1aa;
   }
 
-  .search-result-meta {
+  /* 高亮关键词 */
+  :global(.search-result-item mark) {
+    background-color: #fef3c7;
+    color: #92400e;
+    font-weight: 600;
+    padding: 0.1rem 0.2rem;
+    border-radius: 0.2rem;
+  }
+  :global(html.dark) :global(.search-result-item mark) {
+    background-color: #854d0e;
+    color: #fef3c7;
+  }
+
+  :global(.search-result-meta) {
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -288,25 +534,25 @@
     flex-wrap: wrap;
   }
 
-  .search-result-tags {
+  :global(.search-result-tags) {
     display: flex;
     align-items: center;
     gap: 0.35rem;
   }
 
-  .search-result-tags .tag {
+  :global(.search-result-tags .tag) {
     background: #f4f4f5;
     color: #71717a;
     padding: 0.15rem 0.4rem;
     border-radius: 0.25rem;
     font-size: 0.7rem;
   }
-  :global(html.dark) .search-result-tags .tag {
+  :global(html.dark) :global(.search-result-tags .tag) {
     background: #3f3f46;
     color: #a1a1aa;
   }
 
-  .search-result-date {
+  :global(.search-result-date) {
     white-space: nowrap;
   }
 
@@ -318,7 +564,86 @@
     font-size: 0.9rem;
   }
 
-  .search-result-item .search-result-title {
+  /* 加载动画 */
+  :global(.search-loading) {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 3rem 2rem;
+    color: #71717a;
+    font-size: 0.9rem;
+  }
+  :global(html.dark) :global(.search-loading) {
+    color: #a1a1aa;
+  }
+
+  :global(.spinner) {
+    width: 2.5rem;
+    height: 2.5rem;
+    animation: spin 1s linear infinite;
+  }
+  :global(.spinner circle) {
+    stroke: #4f46e5;
+    stroke-width: 4;
+    fill: none;
+    stroke-dasharray: 80, 200;
+    stroke-dashoffset: 0;
+    animation: dash 1.5s ease-in-out infinite;
+  }
+  :global(html.dark) :global(.spinner circle) {
+    stroke: #60a5fa;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes dash {
+    0% {
+      stroke-dasharray: 1, 200;
+      stroke-dashoffset: 0;
+    }
+    50% {
+      stroke-dasharray: 90, 200;
+      stroke-dashoffset: -35;
+    }
+    100% {
+      stroke-dasharray: 90, 200;
+      stroke-dashoffset: -125;
+    }
+  }
+
+  :global(.search-result-item .search-result-title) {
     color: #18181b;
+  }
+
+  /* 加载更多按钮 */
+  :global(.load-more-btn) {
+    display: block;
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 1rem;
+    background: #f4f4f5;
+    color: #4f46e5;
+    border: 1px solid #e4e4e7;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  :global(.load-more-btn:hover) {
+    background: #e4e4e7;
+    border-color: #4f46e5;
+  }
+  :global(html.dark) :global(.load-more-btn) {
+    background: #27272a;
+    color: #60a5fa;
+    border-color: #3f3f46;
+  }
+  :global(html.dark) :global(.load-more-btn:hover) {
+    background: #3f3f46;
+    border-color: #3b82f6;
   }
 </style>

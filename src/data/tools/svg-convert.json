@@ -1,0 +1,7 @@
+{
+  "name": "SVG 转换",
+  "icon": "🖼️",
+  "description": "将 SVG 文件转换为 PNG/JPG 图片",
+  "url": "/tools/svg-convert",
+  "color": "from-purple-500 to-pink-500"
+}

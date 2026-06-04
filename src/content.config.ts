@@ -17,4 +17,20 @@ const blog = defineCollection({
   }),
 });
 
-export const collections = { blog };
+const docs = defineCollection({
+  loader: glob({
+    base: "./src/content/docs",
+    pattern: "**/*.md",
+    generateId: ({ entry, base }) => {
+      // 生成相对于 base 的路径作为 id（不含 .md 扩展名）
+      return entry.replace(base + '/', '').replace(/\.md$/, '');
+    }
+  }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string().default(""),
+    order: z.number().default(999),
+  }),
+});
+
+export const collections = { blog, docs };

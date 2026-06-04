@@ -1,0 +1,7 @@
+{
+  "name": "Mermaid 图表",
+  "icon": "📊",
+  "description": "将 Mermaid 代码转换为 SVG/PNG 图表",
+  "url": "/tools/mermaid",
+  "color": "from-blue-500 to-cyan-500"
+}

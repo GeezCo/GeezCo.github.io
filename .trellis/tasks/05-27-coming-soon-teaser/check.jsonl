@@ -1,0 +1,4 @@
+{"path": "src/pages/tools/index.astro", "reason": "验证重构后的代码"}
+{"path": "src/data/tools/mermaid.json", "reason": "验证 JSON 文件格式"}
+{"path": "src/data/tools/svg-convert.json", "reason": "验证 JSON 文件格式"}
+{"path": "src/data/tools/ascii-art.json", "reason": "验证 JSON 文件格式"}

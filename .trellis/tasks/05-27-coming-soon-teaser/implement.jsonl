@@ -1,0 +1,4 @@
+{"path": "src/pages/tools/index.astro", "reason": "需要重构的工具列表页面"}
+{"path": "src/pages/tools/mermaid.astro", "reason": "参考现有工具页面结构"}
+{"path": "src/layouts/BaseLayout.astro", "reason": "了解布局结构"}
+{"path": "README.md", "reason": "需要更新文档"}

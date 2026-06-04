@@ -5,10 +5,16 @@ import remarkGfm from 'remark-gfm';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://processmonitor.github.io',
+  site: 'https://geezco.github.io',
   output: 'static',
   integrations: [sitemap()],
   markdown: {
     remarkPlugins: [remarkGfm],
+    shikiConfig: {
+      themes: {
+        light: 'one-light',
+        dark: 'one-dark-pro',
+      },
+    },
   },
 });

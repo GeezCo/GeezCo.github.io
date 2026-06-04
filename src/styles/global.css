@@ -8,14 +8,66 @@
 @theme {
   --font-sans: "Noto Sans SC", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-  --color-primary: #6366f1;
-  --color-secondary: #8b5cf6;
+
+  /* Stripe 主色系 */
+  --color-primary: #533afd;
+  --color-primary-deep: #4434d4;
+  --color-primary-press: #2e2b8c;
+  --color-primary-soft: #665efd;
+
+  /* Stripe 墨色系 */
+  --color-ink: #0d253d;
+  --color-ink-secondary: #273951;
+  --color-ink-mute: #64748d;
+
+  /* Stripe 画布系 */
+  --color-canvas: #ffffff;
+  --color-canvas-soft: #f6f9fc;
+  --color-canvas-soft-2: #f0f4f8;
+
+  /* Stripe 边框系 */
+  --color-hairline: #e3e8ee;
+  --color-hairline-strong: #a8c3de;
+
+  /* 暗色模式 */
+  --color-dark-bg: #0a1628;
+  --color-dark-bg-soft: #0f1f35;
+  --color-dark-surface: #1a2942;
+  --color-dark-border: #2d3f5f;
+  --color-dark-text: #e2e8f0;
+  --color-dark-text-muted: #94a3b8;
+
+  /* 圆角系统 */
+  --rounded-xs: 4px;
+  --rounded-sm: 6px;
+  --rounded-md: 8px;
+  --rounded-lg: 12px;
+  --rounded-xl: 16px;
+  --rounded-pill: 9999px;
+
+  /* 语义色 */
+  --color-secondary: #3b82f6;
   --color-accent: #f59e0b;
+  --color-success: #22c55e;
+  --color-error: #ef4444;
+  --color-warning: #f59e0b;
+
+  /* 兼容旧变量 */
   --color-bg-light: #fafafa;
   --color-bg-dark: #18181b;
   --color-text: #27272a;
   --color-muted: #71717a;
   --color-border: #e4e4e7;
+
+  /* Vercel 渐变色（保留用于 Hero 背景） */
+  --color-gradient-cyan: #50e3c2;
+  --color-gradient-blue-start: #007cf0;
+  --color-gradient-magenta: #ff0080;
+  --color-gradient-amber: #f9cb28;
+
+  /* 字体大小变量（默认中号） */
+  --font-size-prose: 16px;
+  --font-size-code: 14px;
 }
 
 /* 全局样式 */
@@ -37,29 +89,73 @@ html.dark body {
 /* 文章内容 */
 .prose {
   max-width: 800px;
+  line-height: 1.8;
+}
+
+.prose p {
+  margin-bottom: 2em;
 }
 
 .prose h2 {
-  margin-top: 2rem;
+  margin-top: 3rem;
+  margin-bottom: 1.5rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid var(--color-border);
 }
 
 .prose h3 {
-  margin-top: 1.5rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
 }
 
-/* 代码块 - 深色背景 */
-.prose pre {
-  background-color: #1e1e1e;
+.prose h4 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.prose ul, .prose ol {
+  margin-bottom: 2em;
+  padding-left: 1.5em;
+}
+
+.prose li {
+  margin-bottom: 0.5em;
+}
+
+/* 代码块 - 使用 Shiki 双主题 + 后备样式 */
+.prose .astro-code {
   padding: 1.25rem;
   border-radius: 0.5rem;
   overflow-x: auto;
   font-family: var(--font-mono);
-  color: #d4d4d4;
+  margin-top: 1.5em;
+  margin-bottom: 2em;
+
+  /* 后备样式（纯文本代码块使用） */
+  background-color: #f6f8fa !important;
+  border: 1px solid #d0d7de;
 }
 
-.prose pre code {
+/* 浅色模式 - 使用 Shiki 的 CSS 变量（有语法高亮的代码块会覆盖后备样式） */
+.prose .astro-code,
+.prose .astro-code span {
+  color: var(--shiki-light, #24292f) !important;
+  background-color: var(--shiki-light-bg, #f6f8fa) !important;
+}
+
+/* 深色模式 - 使用 Shiki 的 CSS 变量 */
+html.dark .prose .astro-code {
+  background-color: var(--shiki-dark-bg, #1e1e1e) !important;
+  border: 1px solid #30363d;
+}
+
+html.dark .astro-code,
+html.dark .astro-code span {
+  color: var(--shiki-dark, #c9d1d9) !important;
+  background-color: var(--shiki-dark-bg, #1e1e1e) !important;
+}
+
+.prose .astro-code code {
   background: transparent;
   padding: 0;
   color: inherit;
@@ -84,7 +180,7 @@ html.dark .prose :not(pre) > code {
 .prose blockquote {
   border-left: 4px solid var(--color-primary);
   padding: 1rem 1rem 1rem 1.5rem;
-  margin-left: 0;
+  margin: 2em 0;
   color: var(--color-muted);
   background-color: #f4f4f5;
   border-radius: 0.5rem;
@@ -131,4 +227,161 @@ html.dark .prose blockquote {
 
 html.dark .prose th {
   background-color: #27272a;
+}
+
+/* 代码块按钮 - GitHub 风格 */
+/* 换行按钮 */
+[data-wrap-btn] {
+  /* 定位 - 绝对定位在右上角，复制按钮左边 */
+  position: absolute;
+  top: 0.5rem;
+  right: 3rem;
+  z-index: 10;
+
+  /* 尺寸 */
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: 0.375rem;
+
+  /* 背景 */
+  background-color: rgba(0, 0, 0, 0.4);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 16px 16px;
+
+  /* 换行禁用图标（横向文本行） */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white'%3E%3Cpath d='M2 4h12v1.5H2V4zm0 3.5h12V9H2V7.5zm0 3.5h8v1.5H2V11z'/%3E%3C/svg%3E");
+
+  /* 交互 */
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.2s ease;
+
+  /* 隐藏文字 */
+  text-indent: -9999px;
+  overflow: hidden;
+}
+
+/* 换行启用状态 - 自动换行图标（带折返箭头） */
+[data-wrap-btn][data-wrap-enabled] {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white'%3E%3Cpath d='M2 4h12v1.5H2V4zm0 3.5h12v1.5H2V7.5zm0 3.5h6.5v1.5H2V11z'/%3E%3Cpath d='M10.5 12.5l1.5 1.5 1.5-1.5M12 14v-3.5a1 1 0 0 1 1-1h1' stroke='white' stroke-width='1' fill='none'/%3E%3C/svg%3E");
+}
+
+/* 复制按钮 */
+[data-copy-btn] {
+  /* 定位 - 绝对定位在右上角 */
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 10;
+
+  /* 尺寸 */
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: 0.375rem;
+
+  /* 背景 */
+  background-color: rgba(0, 0, 0, 0.4);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 16px 16px;
+
+  /* 复制图标 (两个重叠的方框) */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white'%3E%3Cpath d='M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z'/%3E%3Cpath d='M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z'/%3E%3C/svg%3E");
+
+  /* 交互 */
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.2s ease;
+
+  /* 隐藏文字 */
+  text-indent: -9999px;
+  overflow: hidden;
+}
+
+/* 悬浮代码块时显示按钮 */
+pre:hover [data-wrap-btn],
+pre:hover [data-copy-btn] {
+  opacity: 1;
+}
+
+/* 悬浮按钮时背景变深 */
+[data-wrap-btn]:hover,
+[data-copy-btn]:hover {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+/* 已复制状态 - 绿色对勾 */
+[data-copy-btn][data-copied] {
+  background-color: rgba(34, 197, 94, 0.15);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2322c55e'%3E%3Cpath d='M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'/%3E%3C/svg%3E");
+}
+
+/* 暗色模式 */
+html.dark [data-wrap-btn],
+html.dark [data-copy-btn] {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+html.dark [data-wrap-btn]:hover,
+html.dark [data-copy-btn]:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+html.dark [data-copy-btn][data-copied] {
+  background-color: rgba(34, 197, 94, 0.2);
+}
+
+/* 代码块自动换行状态 */
+.prose pre.code-wrap-enabled {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-x: visible;
+}
+
+.prose pre.code-wrap-enabled code {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* 字体大小调整类 - 全局生效 */
+html.font-small {
+  font-size: 14px;
+}
+
+html.font-small .prose {
+  font-size: 14px;
+}
+
+html.font-small .prose pre,
+html.font-small .prose pre code {
+  font-size: 13px;
+}
+
+html.font-medium {
+  font-size: 16px;
+}
+
+html.font-medium .prose {
+  font-size: 16px;
+}
+
+html.font-medium .prose pre,
+html.font-medium .prose pre code {
+  font-size: 14px;
+}
+
+html.font-large {
+  font-size: 18px;
+}
+
+html.font-large .prose {
+  font-size: 18px;
+}
+
+html.font-large .prose pre,
+html.font-large .prose pre code {
+  font-size: 16px;
 }

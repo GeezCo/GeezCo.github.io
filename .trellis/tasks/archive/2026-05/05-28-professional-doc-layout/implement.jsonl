@@ -1,0 +1,1 @@
+{"role": "user", "content": "实施上下文文件：\n- src/content/config.ts（Content Collections 配置）\n- src/pages/doc/index.astro（文档系统列表页）\n- src/layouts/BaseLayout.astro（基础布局参考）\n- src/styles/global.css（全局样式，特别是 prose 类）\n- src/content/docs/（现有文档结构）"}

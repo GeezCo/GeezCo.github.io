@@ -21,7 +21,7 @@ const { title = site.title, description = site.description } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <link rel="canonical" href={site.url + Astro.url.pathname} />
-    <link rel="favicon" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
     <title>{title}</title>
     <Analytics />
     <!-- Noto Sans SC 字体 -->
@@ -35,6 +35,13 @@ const { title = site.title, description = site.description } = Astro.props;
         if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
           document.documentElement.classList.add('dark');
         }
+      })();
+    </script>
+    <!-- 初始化字体大小：避免闪烁 -->
+    <script is:inline>
+      (function() {
+        const savedSize = localStorage.getItem('fontSize') || 'medium';
+        document.documentElement.classList.add('font-' + savedSize);
       })();
     </script>
     <style is:inline>
@@ -60,7 +67,5 @@ const { title = site.title, description = site.description } = Astro.props;
     </main>
     <Footer />
     <SearchModal />
-    <!-- Pagefind 搜索（全站可用） -->
-    <script src="/pagefind/pagefind.js" is:inline></script>
   </body>
 </html>

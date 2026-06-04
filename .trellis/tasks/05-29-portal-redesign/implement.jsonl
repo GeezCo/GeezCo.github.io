@@ -1,0 +1,7 @@
+{"path": ".trellis/tasks/05-29-portal-redesign/prd.md", "reason": "完整的设计需求和规范"}
+{"path": "/Users/adam/Documents/WebStormProject/awesome-design-md/design-md/stripe/DESIGN.md", "reason": "Stripe 设计系统完整规范"}
+{"path": "/Users/adam/Documents/WebStormProject/awesome-design-md/design-md/vercel/DESIGN.md", "reason": "Vercel 渐变系统参考"}
+{"path": "src/pages/index.astro", "reason": "首页当前实现"}
+{"path": "src/components/Header.astro", "reason": "导航栏当前实现"}
+{"path": "src/layouts/BaseLayout.astro", "reason": "基础布局，需要添加 CSS 变量"}
+{"path": "src/site.config.ts", "reason": "站点配置"}

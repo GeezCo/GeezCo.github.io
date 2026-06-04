@@ -1,0 +1,7 @@
+{
+  "name": "ASCII Art",
+  "icon": "🎨",
+  "description": "将 ASCII 文本图转换为 SVG 矢量图",
+  "url": "/tools/ascii-art",
+  "color": "from-green-500 to-emerald-500"
+}

@@ -2,275 +2,358 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PostCard from "../components/PostCard.astro";
 import { getCollection } from "astro:content";
-import { site } from "../site.config";
 
+const site = {
+  title: "GeezCo",
+  description: "技术创新 · 开源分享 · 工程实践",
+};
+
+// 获取所有文章
 const posts = await getCollection("blog", ({ data }) => !data.draft);
 const sortedPosts = posts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
-const recentPosts = sortedPosts.slice(0, 6);
+
+// 只显示最新 3 篇文章
+const recentPosts = sortedPosts.slice(0, 3);
+
+// 获取所有文档
+const docs = await getCollection("docs");
+// 统计文档系统数量（按第一级目录分组，过滤掉根目录文档）
+const docSystems = new Set(
+  docs
+    .filter((doc) => doc.id && doc.id.includes('/'))
+    .map(doc => doc.id.split('/')[0])
+);
+
+// 统计数据
+const totalPosts = sortedPosts.length;
+const totalTools = 3; // 当前工具数量
+const totalDocs = docSystems.size; // 文档系统数量
 ---
 
 <BaseLayout title={site.title} description={site.description}>
+  <!-- Hero 区域 -->
   <section class="hero">
     <div class="hero-content">
-      <h1>{site.title}</h1>
-      <p>{site.description}</p>
-      <div class="hero-buttons">
-        <button onclick="window.__searchOpen?.()" class="btn-primary">🔍 搜索文章</button>
-        <a href="/about" class="btn-secondary">👋 了解更多</a>
+      <h1 class="hero-title">GeezCo</h1>
+      <p class="hero-subtitle">技术创新 · 开源分享 · 工程实践</p>
+      <p class="hero-description">
+        探索技术的无限可能，分享知识与经验，构建更好的数字世界
+      </p>
+    </div>
+  </section>
+
+  <!-- 板块卡片区域 -->
+  <section class="sections">
+    <div class="container">
+      <div class="sections-grid">
+        <!-- 博客卡片 -->
+        <a href="/blog" class="section-card">
+          <div class="section-icon bg-gradient-to-br from-blue-400 to-blue-600">
+            <span>📝</span>
+          </div>
+          <h2>博客</h2>
+          <p>技术文章分享</p>
+          <div class="section-stats">{totalPosts} 篇文章</div>
+          <div class="section-arrow">→</div>
+        </a>
+
+        <!-- 文档卡片 -->
+        <a href="/doc" class="section-card">
+          <div class="section-icon bg-gradient-to-br from-purple-400 to-purple-600">
+            <span>📚</span>
+          </div>
+          <h2>文档</h2>
+          <p>系统文档中心</p>
+          <div class="section-stats">{totalDocs} 个系统</div>
+          <div class="section-arrow">→</div>
+        </a>
+
+        <!-- 工具卡片 -->
+        <a href="/tools" class="section-card">
+          <div class="section-icon bg-gradient-to-br from-green-400 to-green-600">
+            <span>🛠️</span>
+          </div>
+          <h2>工具</h2>
+          <p>在线工具集</p>
+          <div class="section-stats">{totalTools} 个工具</div>
+          <div class="section-arrow">→</div>
+        </a>
       </div>
     </div>
   </section>
 
-  <section class="posts-section">
-    <div class="section-header">
-      <h2>最新文章</h2>
-      <span>共 {sortedPosts.length} 篇</span>
-    </div>
-    <div class="posts-grid">
-      {recentPosts.map((post) => (
-        <PostCard
-          title={post.data.title}
-          description={post.data.description}
-          pubDate={post.data.pubDate}
-          slug={post.id.replace(/\.md$/, "")}
-          tags={post.data.tags}
-          locked={post.data.locked}
-        />
-      ))}
-    </div>
-
-    {sortedPosts.length > 6 && (
-      <details class="more-posts">
-        <summary>查看全部文章 ({sortedPosts.length} 篇)</summary>
-        <div class="posts-grid more">
-          {sortedPosts.slice(6).map((post) => (
-            <PostCard
-              title={post.data.title}
-              description={post.data.description}
-              pubDate={post.data.pubDate}
-              slug={post.id.replace(/\.md$/, "")}
-              tags={post.data.tags}
-              locked={post.data.locked}
-            />
-          ))}
-        </div>
-      </details>
-    )}
-  </section>
-
-  <section class="stats">
-    <div class="stat">
-      <div class="stat-num">{sortedPosts.length}</div>
-      <div class="stat-label">篇文章</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">{new Set(sortedPosts.flatMap(p => p.data.tags)).size}</div>
-      <div class="stat-label">个标签</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">2026</div>
-      <div class="stat-label">创建年份</div>
+  <!-- 最新动态区域 -->
+  <section class="recent-posts">
+    <div class="container">
+      <h2 class="section-title">最新动态</h2>
+      <div class="posts-grid">
+        {recentPosts.map((post) => (
+          <PostCard
+            title={post.data.title}
+            description={post.data.description}
+            pubDate={post.data.pubDate}
+            slug={post.id.replace(/\.md$/, "")}
+            tags={post.data.tags}
+            locked={post.data.locked}
+          />
+        ))}
+      </div>
+      <div class="view-all">
+        <a href="/blog" class="view-all-btn">查看所有文章</a>
+      </div>
     </div>
   </section>
-  <a href="/tools" class="tool-float" title="工具箱">
-    <span class="tool-icon">🛠️</span>
-  </a>
 </BaseLayout>
 
 <style>
+  /* Hero 区域 - 保留白天渐变效果 */
   .hero {
-    background: linear-gradient(to bottom right, #eef2ff, #ffffff, #f3e8ff);
-    padding: 4rem 1rem 6rem;
+    position: relative;
+    padding: 6rem 1rem 4rem;
     text-align: center;
+    background: #fafafa;
+    overflow: hidden;
   }
+
+  /* Vercel 多彩渐变网格背景 - 仅白天模式 */
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -10%;
+    right: -10%;
+    height: 120%;
+    background: linear-gradient(
+      135deg,
+      var(--color-gradient-cyan) 0%,
+      var(--color-gradient-blue-start) 25%,
+      var(--color-gradient-magenta) 50%,
+      var(--color-gradient-amber) 100%
+    );
+    opacity: 0.12;
+    filter: blur(80px);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* 夜间模式 - 添加深色渐变网格背景 */
   :global(html.dark) .hero {
-    background: linear-gradient(to bottom right, #18181b, #18181b, #27272a);
+    background: #18181b;
   }
+
+  :global(html.dark) .hero::before {
+    display: block;
+    background: linear-gradient(
+      135deg,
+      #1e3a5f 0%,      /* 深蓝 */
+      #2d1b4e 25%,     /* 深紫 */
+      #4a1942 50%,     /* 深洋红 */
+      #3d2817 100%     /* 深琥珀 */
+    );
+    opacity: 0.3;
+    filter: blur(100px);
+  }
+
   .hero-content {
-    max-width: 48rem;
+    position: relative;
+    z-index: 1;
+    max-width: 56rem;
     margin: 0 auto;
   }
-  .hero h1 {
-    font-size: 2.5rem;
+
+  .hero-title {
+    font-size: 3rem;
     font-weight: 700;
-    color: #18181b;
+    color: var(--color-text);
     margin-bottom: 1rem;
+    line-height: 1.2;
   }
-  :global(html.dark) .hero h1 {
+  :global(html.dark) .hero-title {
     color: #fafafa;
   }
-  .hero p {
+
+  .hero-subtitle {
     font-size: 1.25rem;
-    color: #71717a;
-    margin-bottom: 2rem;
-  }
-  :global(html.dark) .hero p {
-    color: #a1a1aa;
-  }
-  .hero-buttons {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-  }
-  .btn-primary {
-    background-color: #6366f1;
-    color: #ffffff;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
+    color: var(--color-primary);
+    margin-bottom: 1rem;
     font-weight: 500;
-    transition: background-color 0.2s;
-    border: none;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 1rem;
   }
-  .btn-primary:hover {
-    background-color: #4f46e5;
-  }
-  .btn-secondary {
-    background-color: #e4e4e7;
-    color: #18181b;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    transition: background-color 0.2s;
-  }
-  .btn-secondary:hover {
-    background-color: #d4d4d8;
-  }
-  :global(html.dark) .btn-secondary {
-    background-color: #3f3f46;
-    color: #fafafa;
-  }
-  :global(html.dark) .btn-secondary:hover {
-    background-color: #52525b;
-  }
-  .posts-section {
-    max-width: 64rem;
+
+  .hero-description {
+    font-size: 1.125rem;
+    color: var(--color-muted);
+    line-height: 1.6;
+    max-width: 42rem;
     margin: 0 auto;
-    padding: 3rem 1rem;
   }
-  .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-  }
-  .section-header h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #18181b;
-  }
-  :global(html.dark) .section-header h2 {
-    color: #fafafa;
-  }
-  .section-header span {
-    color: #71717a;
-    font-size: 0.875rem;
-  }
-  :global(html.dark) .section-header span {
-    color: #a1a1aa;
-  }
-  .posts-grid {
-    display: grid;
-    grid-template-columns: repeat(1, 1fr);
-    gap: 1.5rem;
-  }
-  @media (min-width: 640px) {
-    .posts-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-  @media (min-width: 1024px) {
-    .posts-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-  .more-posts {
-    text-align: center;
-    margin-top: 3rem;
-  }
-  .more-posts summary {
-    color: #6366f1;
-    cursor: pointer;
-    font-weight: 500;
-  }
-  :global(html.dark) .more-posts summary {
-    color: #818cf8;
-  }
-  .more-posts .more {
-    margin-top: 1.5rem;
-  }
-  .stats {
-    background-color: #f4f4f5;
-    padding: 2rem 1rem;
-    text-align: center;
-  }
-  :global(html.dark) .stats {
-    background-color: #27272a;
-  }
-  .stat {
-    display: inline-block;
-    margin: 0 2rem;
-  }
-  .stat-num {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #6366f1;
-  }
-  :global(html.dark) .stat-num {
-    color: #818cf8;
-  }
-  .stat:nth-child(2) .stat-num {
-    color: #8b5cf6;
-  }
-  :global(html.dark) .stat:nth-child(2) .stat-num {
-    color: #a78bfa;
-  }
-  .stat:nth-child(3) .stat-num {
-    color: #f59e0b;
-  }
-  .stat-label {
-    color: #71717a;
-    font-size: 0.875rem;
-  }
-  :global(html.dark) .stat-label {
+  :global(html.dark) .hero-description {
     color: #a1a1aa;
   }
 
-  /* 悬浮工具箱按钮 */
-  .tool-float {
-    position: fixed;
-    bottom: 2rem;
-    right: 2rem;
-    z-index: 100;
-    width: 3rem;
-    height: 3rem;
-    background: #6366f1;
-    color: white;
-    border-radius: 50%;
+  /* 板块卡片区域 */
+  .sections {
+    padding: 4rem 1rem;
+    background: #fafafa;
+  }
+  :global(html.dark) .sections {
+    background: #18181b;
+  }
+
+  .container {
+    max-width: 72rem;
+    margin: 0 auto;
+  }
+
+  .sections-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+  }
+
+  .section-card {
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    padding: 2rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  .section-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    border-color: var(--color-primary);
+  }
+  :global(html.dark) .section-card {
+    background: #27272a;
+    border-color: #3f3f46;
+  }
+  :global(html.dark) .section-card:hover {
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  .section-icon {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-    transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
-    font-size: 1.25rem;
-    text-decoration: none;
+    font-size: 2rem;
+    margin-bottom: 1rem;
   }
-  .tool-float:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
-    background: #4f46e5;
+
+  .section-card h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 0.5rem;
   }
-  :global(html.dark) .tool-float {
-    background: #818cf8;
-    box-shadow: 0 4px 12px rgba(129, 140, 248, 0.4);
+  :global(html.dark) .section-card h2 {
+    color: #fafafa;
   }
-  :global(html.dark) .tool-float:hover {
-    background: #6366f1;
+
+  .section-card p {
+    color: var(--color-muted);
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
   }
-  .tool-icon {
+  :global(html.dark) .section-card p {
+    color: #a1a1aa;
+  }
+
+  .section-stats {
+    color: var(--color-primary);
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-top: auto;
     display: inline-block;
-    line-height: 1;
+  }
+
+  .section-arrow {
+    position: absolute;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    font-size: 1.5rem;
+    color: var(--color-muted);
+    transition: all 0.2s ease;
+    opacity: 0.4;
+  }
+  .section-card:hover .section-arrow {
+    color: var(--color-primary);
+    transform: translateX(4px);
+    opacity: 1;
+  }
+
+  /* 最新动态区域 */
+  .recent-posts {
+    padding: 4rem 1rem;
+    background: white;
+  }
+  :global(html.dark) .recent-posts {
+    background: #0a0a0a;
+  }
+
+  .section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  :global(html.dark) .section-title {
+    color: #fafafa;
+  }
+
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .view-all {
+    text-align: center;
+    margin-top: 3rem;
+  }
+
+  .view-all-btn {
+    display: inline-block;
+    padding: 0.75rem 2rem;
+    background: var(--color-primary);
+    color: white;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  .view-all-btn:hover {
+    background: var(--color-secondary);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+  }
+
+  /* 响应式 */
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 2rem;
+    }
+    .hero-subtitle {
+      font-size: 1rem;
+    }
+    .hero-description {
+      font-size: 1rem;
+    }
+    .sections-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    .posts-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
   }
 </style>

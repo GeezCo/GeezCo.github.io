@@ -4,21 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "9a1ae16c76037d65",
+        "id": "d049a823b9967ce0",
         "type": "tabs",
         "children": [
           {
-            "id": "cbcb0c29ecdee1d3",
+            "id": "07d6772ca1f15810",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "src/content/blog/一些小记.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "一些小记"
+              "title": "新标签页"
             }
           }
         ]
@@ -94,7 +90,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "src/content/blog/一些小记.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +99,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "一些小记 的反向链接列表"
+              "title": "反向链接"
             }
           },
           {
@@ -113,12 +108,11 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "src/content/blog/一些小记.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "一些小记 的出链列表"
+              "title": "出链"
             }
           },
           {
@@ -156,13 +150,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "src/content/blog/一些小记.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "一些小记 的大纲"
+              "title": "大纲"
             }
           }
         ]
@@ -183,53 +176,53 @@
       "bases:新建数据库": false
     }
   },
-  "active": "cbcb0c29ecdee1d3",
+  "active": "d168bfcdf850a8c5",
   "lastOpenFiles": [
-    "api/scripts/get-hourly-password.mjs",
-    "dist/pagefind/pagefind-component-ui.js",
-    "dist/pagefind/pagefind-ui.css",
-    "dist/pagefind/pagefind-worker.js",
-    "dist/pagefind/pagefind-entry.json",
-    "dist/pagefind/pagefind.js",
-    "dist/pagefind/pagefind-modular-ui.css",
-    "dist/pagefind/pagefind-modular-ui.js",
     "dist/pagefind/wasm.unknown.pagefind",
+    "dist/pagefind/pagefind-modular-ui.css",
+    "dist/pagefind/pagefind-entry.json",
+    "dist/pagefind/pagefind-component-ui.js",
     "dist/pagefind/pagefind-ui.js",
+    "dist/pagefind/pagefind-modular-ui.js",
+    "dist/pagefind/pagefind-ui.css",
+    "dist/pagefind/pagefind-component-ui.css",
     "dist/pagefind/pagefind-highlight.js",
+    "dist/pagefind/pagefind-worker.js",
+    "dist/pagefind/pagefind.js",
     "dist/images/wechat.jpeg",
     "dist/images/be34b97d-1b48-4603-9462-8d638a554ccd.png",
-    "dist/images/9b420809-c290-4745-9c35-a39fd1eafdff.png",
     "dist/images/alipay.jpeg",
+    "dist/images/9b420809-c290-4745-9c35-a39fd1eafdff.png",
+    "dist/favicon.png",
+    "src/content/blog/_theme-preview.md",
+    "src/content/blog/一些小记.md",
+    "DESIGN.md",
+    "src/content/docs/gzDoc/architecture/overview.md",
+    "src/content/docs/gzDoc/getting-started.md",
+    "src/content/docs/gzDoc/index.md",
+    "src/content/docs/gzDoc/workspace-guide.md",
+    "src/content/docs/gzDoc/development/README.md",
+    "src/content/docs/gzDoc/deployment/README.md",
+    "src/content/docs/gzDoc/deployment/ENVIRONMENTS.md",
+    "src/content/docs/gzDoc/architecture/platform-plugin-architecture.md",
+    "src/content/docs/gzDoc/architecture/README.md",
+    "src/content/docs/gzDoc/infrastructure/docker/README.md",
+    "src/content/docs/gzDoc/infrastructure/docker/README.prod.md",
+    "src/content/docs/gzDoc/docs/development/README.md",
+    "src/content/docs/gzDoc/docs/deployment/README.md",
+    "src/content/docs/gzDoc/docs/deployment/ENVIRONMENTS.md",
+    "src/content/docs/gzDoc/docs/architecture/platform-plugin-architecture.md",
+    "src/content/docs/gzDoc/docs/architecture/README.md",
+    "src/content/docs/gzDoc/docs/workspace-guide.md",
+    "src/content/docs/gzDoc/frontend/README.md",
+    "src/content/docs/gzDoc/ai-service/README.md",
+    "src/content/docs/gzDoc/总体规划.md",
+    "src/content/docs/gzDoc/README.md",
+    "src/content/docs/gzDoc/AGENTS.md",
+    "public/favicon.png",
+    "public/javicon.png",
     "dist/favicon.svg",
-    "node_modules/decode-base64/readme.md",
-    "node_modules/uint8-encoding/readme.md",
-    "node_modules/function-once/readme.md",
-    "node_modules/bob-wasm/test/fixtures/output.svg",
-    "node_modules/bob-wasm/readme.md",
-    "node_modules/node-buffer-encoding/readme.md",
-    "node_modules/@pagefind/darwin-arm64/README.md",
-    "node_modules/@shikijs/engine-javascript/README.md",
-    "node_modules/@astrojs/compiler/README.md",
-    "node_modules/@jridgewell/trace-mapping/README.md",
-    "node_modules/@jridgewell/remapping/README.md",
-    "node_modules/@jridgewell/sourcemap-codec/README.md",
-    "node_modules/@astrojs/internal-helpers/readme.md",
-    "node_modules/@rollup/pluginutils/README.md",
-    "node_modules/@clack/core/README.md",
-    "node_modules/@clack/core/CHANGELOG.md",
-    "node_modules/@img/colour/README.md",
-    "node_modules/@img/colour/LICENSE.md",
-    "node_modules/@babel/types/README.md",
-    "node_modules/rollup/node_modules/@types/estree/README.md",
-    "node_modules/@types/estree/README.md",
-    "node_modules/@capsizecss/unpack/README.md",
-    "node_modules/@esbuild/darwin-arm64/README.md",
-    "node_modules/@jridgewell/gen-mapping/README.md",
-    "node_modules/@astrojs/sitemap/README.md",
-    "node_modules/@astrojs/telemetry/README.md",
-    "dist/client/images/wechat.jpeg",
-    "dist/client/images/be34b97d-1b48-4603-9462-8d638a554ccd.png",
-    "dist/client/images/alipay.jpeg",
-    "dist/client/images/9b420809-c290-4745-9c35-a39fd1eafdff.png"
+    "public/images/alipay.jpeg",
+    "public/images/alipay.png"
   ]
 }

@@ -1,0 +1,411 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import DocSidebar from "../components/DocSidebar.astro";
+import DocTOC from "../components/DocTOC.astro";
+import DocBreadcrumb from "../components/DocBreadcrumb.astro";
+import DocPagination from "../components/DocPagination.astro";
+
+interface Props {
+  title: string;
+  description?: string;
+  system: string;
+  currentSlug: string;
+  navTree: any[];
+  headings: any[];
+  breadcrumbs: any[];
+  prev?: any;
+  next?: any;
+  lastModified?: string;
+  editUrl?: string;
+}
+
+const {
+  title,
+  description,
+  system,
+  currentSlug,
+  navTree,
+  headings,
+  breadcrumbs,
+  prev,
+  next,
+  lastModified,
+  editUrl,
+} = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <div class="doc-layout">
+    <!-- 左侧边栏 -->
+    <DocSidebar system={system} currentSlug={currentSlug} navTree={navTree} />
+
+    <!-- 中间内容区 -->
+    <main class="doc-main">
+      <div class="doc-container">
+        <!-- 面包屑 -->
+        <DocBreadcrumb items={breadcrumbs} />
+
+        <!-- 文章内容 -->
+        <article class="doc-content prose">
+          <h1>{title}</h1>
+          <slot />
+        </article>
+
+        <!-- 页脚信息 -->
+        <footer class="doc-footer">
+          {lastModified && (
+            <div class="doc-meta">
+              <span class="meta-label">最后更新：</span>
+              <time class="meta-value">{lastModified}</time>
+            </div>
+          )}
+          {editUrl && (
+            <a href={editUrl} class="edit-link" target="_blank" rel="noopener">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25a1.75 1.75 0 0 1 .445-.758l8.61-8.61Zm.176 4.823L9.75 4.81l-6.286 6.287a.25.25 0 0 0-.064.108l-.558 1.953 1.953-.558a.249.249 0 0 0 .108-.064Z"/>
+              </svg>
+              在 GitHub 上编辑此页
+            </a>
+          )}
+        </footer>
+
+        <!-- 上下页导航 -->
+        <DocPagination prev={prev} next={next} />
+      </div>
+    </main>
+
+    <!-- 右侧 TOC -->
+    <DocTOC headings={headings} />
+  </div>
+
+  <!-- 移动端汉堡菜单 -->
+  <button class="mobile-menu-btn" aria-label="打开菜单">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </button>
+
+  <!-- 移动端侧边栏遮罩 -->
+  <div class="mobile-sidebar-overlay"></div>
+  <div class="mobile-sidebar">
+    <div class="mobile-sidebar-header">
+      <h3>目录</h3>
+      <button class="mobile-sidebar-close" aria-label="关闭菜单">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <DocSidebar system={system} currentSlug={currentSlug} navTree={navTree} />
+  </div>
+</BaseLayout>
+
+<script>
+  // 移动端菜单
+  const menuBtn = document.querySelector('.mobile-menu-btn');
+  const sidebar = document.querySelector('.mobile-sidebar');
+  const overlay = document.querySelector('.mobile-sidebar-overlay');
+  const closeBtn = document.querySelector('.mobile-sidebar-close');
+
+  function openMenu() {
+    sidebar?.classList.add('open');
+    overlay?.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeMenu() {
+    sidebar?.classList.remove('open');
+    overlay?.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  menuBtn?.addEventListener('click', openMenu);
+  closeBtn?.addEventListener('click', closeMenu);
+  overlay?.addEventListener('click', closeMenu);
+
+  // 代码块复制和换行功能
+  document.addEventListener('DOMContentLoaded', () => {
+    const codeBlocks = document.querySelectorAll('pre > code');
+
+    // 从 localStorage 读取换行偏好，默认关闭
+    const wrapEnabled = localStorage.getItem('codeWrap') === 'true';
+
+    codeBlocks.forEach((codeBlock) => {
+      const pre = codeBlock.parentElement;
+      if (!pre) return;
+
+      // 设置相对定位
+      pre.style.position = 'relative';
+
+      // 应用初始换行状态
+      if (wrapEnabled) {
+        pre.classList.add('code-wrap-enabled');
+      }
+
+      // 创建换行按钮
+      const wrapBtn = document.createElement('button');
+      wrapBtn.setAttribute('data-wrap-btn', '');
+      wrapBtn.setAttribute('aria-label', wrapEnabled ? '禁用自动换行' : '启用自动换行');
+      if (wrapEnabled) {
+        wrapBtn.setAttribute('data-wrap-enabled', '');
+      }
+
+      // 创建复制按钮
+      const copyBtn = document.createElement('button');
+      copyBtn.setAttribute('data-copy-btn', '');
+      copyBtn.setAttribute('aria-label', '复制代码');
+
+      // 将按钮添加到 pre 元素
+      pre.appendChild(wrapBtn);
+      pre.appendChild(copyBtn);
+
+      // 换行按钮点击事件
+      wrapBtn.addEventListener('click', () => {
+        const isEnabled = wrapBtn.hasAttribute('data-wrap-enabled');
+
+        if (isEnabled) {
+          // 禁用换行
+          wrapBtn.removeAttribute('data-wrap-enabled');
+          wrapBtn.setAttribute('aria-label', '启用自动换行');
+          pre.classList.remove('code-wrap-enabled');
+          localStorage.setItem('codeWrap', 'false');
+        } else {
+          // 启用换行
+          wrapBtn.setAttribute('data-wrap-enabled', '');
+          wrapBtn.setAttribute('aria-label', '禁用自动换行');
+          pre.classList.add('code-wrap-enabled');
+          localStorage.setItem('codeWrap', 'true');
+        }
+
+        // 更新所有代码块的换行状态
+        document.querySelectorAll('pre').forEach(p => {
+          const btn = p.querySelector('[data-wrap-btn]');
+          if (btn) {
+            if (isEnabled) {
+              p.classList.remove('code-wrap-enabled');
+              btn.removeAttribute('data-wrap-enabled');
+              btn.setAttribute('aria-label', '启用自动换行');
+            } else {
+              p.classList.add('code-wrap-enabled');
+              btn.setAttribute('data-wrap-enabled', '');
+              btn.setAttribute('aria-label', '禁用自动换行');
+            }
+          }
+        });
+      });
+
+      // 复制按钮点击事件
+      copyBtn.addEventListener('click', async () => {
+        const code = codeBlock.textContent || '';
+        try {
+          await navigator.clipboard.writeText(code);
+          copyBtn.setAttribute('data-copied', '');
+          copyBtn.setAttribute('aria-label', '已复制');
+          setTimeout(() => {
+            copyBtn.removeAttribute('data-copied');
+            copyBtn.setAttribute('aria-label', '复制代码');
+          }, 2000);
+        } catch (err) {
+          console.error('复制失败:', err);
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  .doc-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr 200px;
+    min-height: 100vh;
+  }
+
+  .doc-main {
+    min-width: 0;
+    padding: 2rem;
+  }
+
+  .doc-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .doc-content {
+    margin-top: 2rem;
+  }
+
+  .doc-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e5e7eb;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  :global(html.dark) .doc-footer {
+    border-top-color: #27272a;
+  }
+
+  .doc-meta {
+    font-size: 0.875rem;
+    color: #71717a;
+  }
+  :global(html.dark) .doc-meta {
+    color: #a1a1aa;
+  }
+
+  .meta-label {
+    font-weight: 500;
+  }
+
+  .edit-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #3b82f6;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .edit-link:hover {
+    color: #4f46e5;
+  }
+  :global(html.dark) .edit-link {
+    color: #60a5fa;
+  }
+  :global(html.dark) .edit-link:hover {
+    color: #3b82f6;
+  }
+
+  /* 移动端菜单按钮 */
+  .mobile-menu-btn {
+    display: none;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 100;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: none;
+    border-radius: 0.375rem;
+    background: white;
+    color: #18181b;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .mobile-menu-btn:hover {
+    background: #f4f4f5;
+  }
+  :global(html.dark) .mobile-menu-btn {
+    background: #27272a;
+    color: #fafafa;
+  }
+  :global(html.dark) .mobile-menu-btn:hover {
+    background: #3f3f46;
+  }
+
+  /* 移动端侧边栏 */
+  .mobile-sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 200;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .mobile-sidebar-overlay.open {
+    opacity: 1;
+  }
+
+  .mobile-sidebar {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    background: white;
+    z-index: 300;
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+    overflow-y: auto;
+  }
+  .mobile-sidebar.open {
+    transform: translateX(0);
+  }
+  :global(html.dark) .mobile-sidebar {
+    background: #18181b;
+  }
+
+  .mobile-sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  :global(html.dark) .mobile-sidebar-header {
+    border-bottom-color: #27272a;
+  }
+
+  .mobile-sidebar-header h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #18181b;
+  }
+  :global(html.dark) .mobile-sidebar-header h3 {
+    color: #fafafa;
+  }
+
+  .mobile-sidebar-close {
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #71717a;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .mobile-sidebar-close:hover {
+    color: #18181b;
+  }
+  :global(html.dark) .mobile-sidebar-close {
+    color: #a1a1aa;
+  }
+  :global(html.dark) .mobile-sidebar-close:hover {
+    color: #fafafa;
+  }
+
+  /* 响应式 */
+  @media (max-width: 1279px) {
+    .doc-layout {
+      grid-template-columns: 280px 1fr;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .doc-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .doc-main {
+      padding: 1rem;
+    }
+
+    .mobile-menu-btn,
+    .mobile-sidebar-overlay,
+    .mobile-sidebar {
+      display: block;
+    }
+  }
+</style>

@@ -1,0 +1,137 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PostCard from "../../components/PostCard.astro";
+import { getCollection } from "astro:content";
+
+// 获取所有文章
+const posts = await getCollection("blog", ({ data }) => !data.draft);
+const sortedPosts = posts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+// 按年份分组
+const postsByYear = sortedPosts.reduce((acc, post) => {
+  const year = new Date(post.data.pubDate).getFullYear();
+  if (!acc[year]) {
+    acc[year] = [];
+  }
+  acc[year].push(post);
+  return acc;
+}, {} as Record<number, typeof sortedPosts>);
+
+// 按年份倒序排列
+const years = Object.keys(postsByYear).map(Number).sort((a, b) => b - a);
+---
+
+<BaseLayout title="博客归档" description="所有文章归档">
+  <section class="blog-archive">
+    <div class="container">
+      <div class="archive-header">
+        <h1>📝 博客归档</h1>
+        <p class="archive-stats">共 {sortedPosts.length} 篇文章</p>
+      </div>
+
+      {years.map((year) => (
+        <div class="year-section">
+          <h2 class="year-title">
+            {year} 年 <span class="year-count">({postsByYear[year].length} 篇)</span>
+          </h2>
+          <div class="posts-grid">
+            {postsByYear[year].map((post) => (
+              <PostCard
+                title={post.data.title}
+                description={post.data.description}
+                pubDate={post.data.pubDate}
+                slug={post.id.replace(/\.md$/, "")}
+                tags={post.data.tags}
+                locked={post.data.locked}
+              />
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .blog-archive {
+    background: linear-gradient(to bottom, #fafafa, #ffffff);
+    min-height: 80vh;
+    padding: 3rem 1rem;
+  }
+  :global(html.dark) .blog-archive {
+    background: linear-gradient(to bottom, #18181b, #27272a);
+  }
+
+  .container {
+    max-width: 72rem;
+    margin: 0 auto;
+  }
+
+  .archive-header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+
+  .archive-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #18181b;
+    margin-bottom: 0.5rem;
+  }
+  :global(html.dark) .archive-header h1 {
+    color: #fafafa;
+  }
+
+  .archive-stats {
+    font-size: 1.125rem;
+    color: #71717a;
+  }
+  :global(html.dark) .archive-stats {
+    color: #a1a1aa;
+  }
+
+  .year-section {
+    margin-bottom: 4rem;
+  }
+
+  .year-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #18181b;
+    margin-bottom: 2rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e4e4e7;
+  }
+  :global(html.dark) .year-title {
+    color: #fafafa;
+    border-bottom-color: #3f3f46;
+  }
+
+  .year-count {
+    font-size: 1rem;
+    color: #71717a;
+    font-weight: 400;
+  }
+  :global(html.dark) .year-count {
+    color: #a1a1aa;
+  }
+
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    .archive-header h1 {
+      font-size: 2rem;
+    }
+    .year-title {
+      font-size: 1.5rem;
+    }
+    .posts-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+</style>

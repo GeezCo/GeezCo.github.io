@@ -1,0 +1,128 @@
+---
+// 桌面端下拉菜单组件 - 卡片式布局
+const navItems = [
+  {
+    href: '/blog',
+    icon: '📝',
+    title: '博客',
+    description: '技术文章与思考'
+  },
+  {
+    href: '/doc',
+    icon: '📚',
+    title: '文档',
+    description: '系统化知识库'
+  },
+  {
+    href: '/tools',
+    icon: '🛠️',
+    title: '工具',
+    description: '实用开发工具'
+  }
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<div class="nav-dropdown">
+  {navItems.map(item => (
+    <a
+      href={item.href}
+      class={`dropdown-item ${currentPath.startsWith(item.href) ? 'active' : ''}`}
+    >
+      <span class="item-icon">{item.icon}</span>
+      <div class="item-content">
+        <div class="item-title">{item.title}</div>
+        <div class="item-description">{item.description}</div>
+      </div>
+    </a>
+  ))}
+</div>
+
+<style>
+  .nav-dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    min-width: 200px;
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--rounded-lg);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all 0.2s ease;
+    z-index: 100;
+  }
+
+  :global(html.dark) .nav-dropdown {
+    background: var(--color-dark-surface);
+    border-color: var(--color-dark-border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--rounded-md);
+    transition: background-color 0.2s;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .dropdown-item:hover {
+    background: var(--color-canvas-soft);
+  }
+
+  :global(html.dark) .dropdown-item:hover {
+    background: var(--color-dark-bg-soft);
+  }
+
+  .dropdown-item.active {
+    background: rgba(83, 58, 253, 0.1);
+  }
+
+  :global(html.dark) .dropdown-item.active {
+    background: rgba(83, 58, 253, 0.2);
+  }
+
+  .item-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .item-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .item-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    white-space: nowrap;
+  }
+
+  :global(html.dark) .item-title {
+    color: var(--color-dark-text);
+  }
+
+  .item-description {
+    font-size: 0.75rem;
+    color: var(--color-ink-mute);
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+
+  :global(html.dark) .item-description {
+    color: var(--color-dark-text-muted);
+  }
+</style>

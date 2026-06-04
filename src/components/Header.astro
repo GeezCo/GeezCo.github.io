@@ -1,25 +1,52 @@
 ---
 import { site } from "../site.config";
 import ThemeToggle from "./ThemeToggle.astro";
+import NavDropdown from "./NavDropdown.astro";
+import MobileMenu from "./MobileMenu.astro";
+
+const currentPath = Astro.url.pathname;
 ---
 
 <header class="header">
   <nav class="nav">
     <a href="/" class="logo">{site.title}</a>
-    <div class="nav-links">
-      <a href="/">首页</a>
-      <button class="search-trigger" onclick="window.__searchOpen?.()" title="搜索 (Ctrl+K / ⌘K)">
+
+    <!-- 桌面端导航 -->
+    <div class="nav-links desktop-nav">
+      <button class="search-trigger" onclick="window.openSearch?.()" title="搜索 (Ctrl+K / ⌘K)">
         <svg class="search-trigger-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
         <span class="search-trigger-text">搜索</span>
         <kbd class="search-trigger-kbd" id="search-kbd">⌘K</kbd>
       </button>
-      <a href="/about">关于</a>
-      <a href="/tools">工具</a>
-      <a href="/sponsor" class="highlight">赞赏</a>
-      <a href="/rss.xml" target="_blank">RSS</a>
+
+      <!-- 首页下拉菜单 -->
+      <div class="nav-dropdown-wrapper">
+        <a href="/" class={`nav-link ${currentPath === '/' ? 'active' : ''}`}>首页</a>
+        <NavDropdown />
+      </div>
+
+      <a href="/about" class={`nav-link ${currentPath === '/about' ? 'active' : ''}`}>关于</a>
+      <a href="/sponsor" class={`nav-link highlight ${currentPath === '/sponsor' ? 'active' : ''}`}>赞赏</a>
+
+      <div class="font-size-toggle">
+        <button class="font-size-btn" data-size="small" title="小字号">小</button>
+        <button class="font-size-btn" data-size="medium" title="中字号">中</button>
+        <button class="font-size-btn" data-size="large" title="大字号">大</button>
+      </div>
       <ThemeToggle />
+    </div>
+
+    <!-- 移动端导航 -->
+    <div class="mobile-nav">
+      <button class="search-trigger mobile-search" onclick="window.openSearch?.()" title="搜索">
+        <svg class="search-trigger-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </button>
+      <ThemeToggle />
+      <MobileMenu />
     </div>
   </nav>
 </header>
@@ -29,9 +56,9 @@ import ThemeToggle from "./ThemeToggle.astro";
     position: sticky;
     top: 0;
     z-index: 50;
-    background-color: rgba(250, 250, 250, 0.8);
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid #e4e4e7;
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--color-border);
     padding: 1rem;
   }
   :global(html.dark) .header {
@@ -47,44 +74,78 @@ import ThemeToggle from "./ThemeToggle.astro";
   }
   .logo {
     font-size: 1.5rem;
-    font-weight: 700;
-    color: #6366f1;
+    font-weight: 600;
+    color: var(--color-primary);
     transition: color 0.2s;
   }
   .logo:hover {
-    color: #4f46e5;
+    color: var(--color-secondary);
   }
-  :global(html.dark) .logo {
-    color: #818cf8;
-  }
-  :global(html.dark) .logo:hover {
-    color: #6366f1;
-  }
-  .nav-links {
+
+  /* 桌面端导航 */
+  .desktop-nav {
     display: flex;
     align-items: center;
     gap: 1.5rem;
   }
-  .nav-links a {
-    color: #71717a;
+
+  /* 移动端导航 */
+  .mobile-nav {
+    display: none;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  @media (max-width: 768px) {
+    .desktop-nav {
+      display: none;
+    }
+    .mobile-nav {
+      display: flex;
+    }
+  }
+
+  /* 导航链接 */
+  .nav-link {
+    color: var(--color-muted);
     font-size: 0.875rem;
-    font-weight: 500;
     transition: color 0.2s;
+    text-decoration: none;
+    position: relative;
   }
-  .nav-links a:hover {
-    color: #6366f1;
+
+  .nav-link:hover {
+    color: var(--color-primary);
   }
-  :global(html.dark) .nav-links a {
-    color: #a1a1aa;
+
+  .nav-link.active {
+    color: var(--color-primary);
+    font-weight: 600;
   }
-  :global(html.dark) .nav-links a:hover {
-    color: #818cf8;
+
+  .nav-link.highlight {
+    color: var(--color-accent);
   }
-  .nav-links .highlight {
-    color: #f59e0b;
-  }
-  .nav-links .highlight:hover {
+
+  .nav-link.highlight:hover {
     color: #d97706;
+  }
+
+  /* 下拉菜单容器 */
+  .nav-dropdown-wrapper {
+    position: relative;
+  }
+
+  .nav-dropdown-wrapper:hover :global(.nav-dropdown) {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .nav-dropdown-wrapper:focus-within :global(.nav-dropdown) {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
   }
 
   /* 搜索按钮 */
@@ -93,68 +154,94 @@ import ThemeToggle from "./ThemeToggle.astro";
     align-items: center;
     gap: 0.35rem;
     background: #f4f4f5;
-    border: 1px solid #e4e4e7;
-    border-radius: 0.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.375rem;
     padding: 0.35rem 0.6rem;
     cursor: pointer;
     font-size: 0.8rem;
-    color: #71717a;
+    color: var(--color-muted);
     font-family: inherit;
     transition: background-color 0.2s, border-color 0.2s;
   }
   .search-trigger:hover {
     background: #e4e4e7;
-    border-color: #d4d4d8;
+    border-color: var(--color-muted);
   }
   :global(html.dark) .search-trigger {
-    background: #3f3f46;
-    border-color: #52525b;
+    background: #27272a;
+    border-color: #3f3f46;
     color: #a1a1aa;
   }
   :global(html.dark) .search-trigger:hover {
-    background: #52525b;
-    border-color: #71717a;
+    background: #3f3f46;
+    border-color: var(--color-primary);
   }
   .search-trigger-icon {
     flex-shrink: 0;
   }
   .search-trigger-kbd {
     font-size: 0.65rem;
-    background: #ffffff;
-    border: 1px solid #e4e4e7;
+    background: white;
+    border: 1px solid var(--color-border);
     border-radius: 0.25rem;
     padding: 0.1rem 0.3rem;
-    color: #a1a1aa;
+    color: var(--color-muted);
     white-space: nowrap;
   }
   :global(html.dark) .search-trigger-kbd {
     background: #18181b;
     border-color: #3f3f46;
-    color: #71717a;
-  }
-  @media (max-width: 640px) {
-    .search-trigger-text {
-      display: none;
-    }
-    .search-trigger-kbd {
-      display: none;
-    }
+    color: #a1a1aa;
   }
 
-  /* 移动端适配 */
-  @media (max-width: 640px) {
-    .nav {
-      gap: 0.5rem;
-    }
-    .logo {
-      font-size: 1.1rem;
-    }
-    .nav-links {
-      gap: 0.6rem;
-    }
-    .nav-links a {
-      font-size: 0.75rem;
-    }
+  /* 移动端搜索按钮 */
+  .mobile-search .search-trigger-text,
+  .mobile-search .search-trigger-kbd {
+    display: none;
+  }
+  .mobile-search {
+    padding: 0.5rem;
+  }
+
+  /* 字体大小切换按钮 */
+  .font-size-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: #f4f4f5;
+    border: 1px solid var(--color-border);
+    border-radius: 0.375rem;
+    padding: 0.25rem;
+  }
+  :global(html.dark) .font-size-toggle {
+    background: #27272a;
+    border-color: #3f3f46;
+  }
+  .font-size-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    color: var(--color-muted);
+    background: transparent;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .font-size-btn:hover {
+    color: var(--color-primary);
+    background: rgba(83, 58, 253, 0.1);
+  }
+  .font-size-btn.active {
+    color: white;
+    background: var(--color-primary);
+  }
+  :global(html.dark) .font-size-btn {
+    color: #a1a1aa;
+  }
+  :global(html.dark) .font-size-btn:hover {
+    color: var(--color-primary);
+    background: rgba(83, 58, 253, 0.2);
   }
 </style>
 
@@ -166,6 +253,40 @@ import ThemeToggle from "./ThemeToggle.astro";
       const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
                  || navigator.userAgent.toUpperCase().indexOf('MAC') >= 0;
       kbd.textContent = isMac ? '⌘K' : 'Ctrl+K';
+    }
+
+    // 字体大小切换功能
+    const fontSizeBtns = document.querySelectorAll('.font-size-btn');
+    const htmlEl = document.documentElement;
+
+    // 从 localStorage 加载字体大小偏好，默认为 medium
+    const savedSize = localStorage.getItem('fontSize') || 'medium';
+    setFontSize(savedSize);
+
+    // 绑定按钮点击事件
+    fontSizeBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const size = btn.dataset.size;
+        setFontSize(size);
+        localStorage.setItem('fontSize', size);
+      });
+    });
+
+    function setFontSize(size) {
+      // 移除所有字体大小类
+      htmlEl.classList.remove('font-small', 'font-medium', 'font-large');
+
+      // 添加对应的类
+      htmlEl.classList.add(`font-${size}`);
+
+      // 更新按钮状态
+      fontSizeBtns.forEach(btn => {
+        if (btn.dataset.size === size) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
     }
   });
 </script>
