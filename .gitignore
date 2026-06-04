@@ -11,6 +11,11 @@ package-lock.json
 # IDE 和工具配置
 .idea/
 .claude/
+.agents/
+.codex/
+.cursor/
+.pi/
+.obsidian/
 openspec/
 
 # 本地维护文档，不提交到仓库
