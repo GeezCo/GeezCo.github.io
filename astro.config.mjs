@@ -12,8 +12,8 @@ export default defineConfig({
     remarkPlugins: [remarkGfm],
     shikiConfig: {
       themes: {
-        light: 'one-light',
-        dark: 'one-dark-pro',
+        light: 'github-light',
+        dark: 'dracula',
       },
     },
   },
