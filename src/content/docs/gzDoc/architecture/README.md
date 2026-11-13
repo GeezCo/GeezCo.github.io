@@ -762,4 +762,3 @@ kubectl apply -f k8s/finance/   # 金融场景（可选）
 - [开发指南](../development/README.md)
 - [部署文档](../deployment/README.md)
 - [金融场景详细设计](./finance-design.md) (待创建)
-

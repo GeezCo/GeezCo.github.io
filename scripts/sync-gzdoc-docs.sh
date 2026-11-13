@@ -1,6 +1,19 @@
 #!/bin/bash
 # 同步 gzDoc 文档到 blog 站点
 # 使用方法: ./sync-gzdoc-docs.sh
+#
+# ⚠️ 已废弃（DEPRECATED）——请勿使用本脚本！
+#
+# 本脚本存在严重缺陷：
+#   1. 清理逻辑会删除站点独有的 index.md / getting-started.md / architecture/overview.md；
+#   2. 同步后会产生双标题；3. 路径硬编码在旧机器；4. 会同步内部文档。
+#
+# 请改用 gzDoc 仓库内的权威脚本：
+#   gzDoc/scripts/sync-docs-to-site.sh [--dry-run]
+#
+echo "❌ 本脚本已废弃，请使用 gzDoc 仓库内的 scripts/sync-docs-to-site.sh" >&2
+echo "   用法: <gzDoc>/scripts/sync-docs-to-site.sh [--dry-run] [--site <门户站路径>]" >&2
+exit 1
 
 set -e
 
