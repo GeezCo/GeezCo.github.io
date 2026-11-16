@@ -25,7 +25,7 @@ AGENTS-EN.md
 
 # 敏感文件 —— 仅本地备份，绝不提交
 # .enc 为 AES-256-GCM 加密文件，可安全提交
-src/private/
+site/src/private/
 
 # 策略 A：sync 产物必须提交，勿忽略
-# src/content/blog/
+# site/src/content/blog/

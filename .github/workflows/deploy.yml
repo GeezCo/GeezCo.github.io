@@ -3,6 +3,10 @@ name: Deploy Astro to GitHub Pages
 on:
   push:
     branches: [main]
+    # 仅当站点目录或本工作流变更时触发部署，避免后端/文档改动误触发
+    paths:
+      - 'site/**'
+      - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
 permissions:
@@ -17,6 +21,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,7 +42,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: site/dist
 
   deploy:
     needs: build
