@@ -1,0 +1,39 @@
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.register-card {
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+}
+
+.register-card .ant-card-head-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.register-card .ant-form {
+  margin-top: 16px;
+}
+
+.register-card .ant-collapse {
+  margin-bottom: 16px;
+}
+
+.register-card .ant-collapse-header {
+  padding: 8px 0 !important;
+  font-size: 14px;
+  color: #666;
+}
+
+.register-card .ant-collapse-content-box {
+  padding-top: 12px !important;
+}
