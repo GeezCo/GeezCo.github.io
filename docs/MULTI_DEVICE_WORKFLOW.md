@@ -44,8 +44,8 @@ git push origin main
 
 ```bash
 # 克隆项目
-git clone git@github.com:GeezCo/gzDoc.git
-cd gzDoc
+git clone git@github.com:GeezCo/GeezCo.github.io.git
+cd GeezCo.github.io
 
 # 检查 .trellis 是否存在
 ls -la .trellis/

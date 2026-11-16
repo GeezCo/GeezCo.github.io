@@ -23,8 +23,9 @@ order: 2
 ### 1. 克隆项目
 
 ```bash
-git clone https://github.com/GeezCo/gzDoc.git
-cd gzDoc
+git clone https://github.com/GeezCo/GeezCo.github.io.git
+cd GeezCo.github.io
+# 后端、前端、AI 服务均在本仓库根目录下
 ```
 
 ### 2. 配置数据库

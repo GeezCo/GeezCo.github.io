@@ -8,7 +8,7 @@
 
 如果你发现了 bug 或有功能建议：
 
-1. 在 [Issues](https://github.com/GeezCo/gzDoc/issues) 中搜索是否已有相关问题
+1. 在 [Issues](https://github.com/GeezCo/GeezCo.github.io/issues) 中搜索是否已有相关问题
 2. 如果没有，创建新的 Issue，并提供：
    - 清晰的标题和描述
    - 复现步骤（如果是 bug）
@@ -159,7 +159,7 @@ npm test
 ## 问题？
 
 如有任何问题，欢迎：
-- 在 [Discussions](https://github.com/GeezCo/gzDoc/discussions) 中讨论
+- 在 [Discussions](https://github.com/GeezCo/GeezCo.github.io/discussions) 中讨论
 - 发送邮件至项目维护者
 
 ---

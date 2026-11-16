@@ -16,7 +16,7 @@
 ### 报告流程
 
 1. **私密报告**：请通过 GitHub Security Advisories 报告
-   - 访问：https://github.com/GeezCo/gzDoc/security/advisories/new
+   - 访问：https://github.com/GeezCo/GeezCo.github.io/security/advisories/new
    - 或发送邮件至：security@geezco.com
 
 2. **提供信息**：
@@ -97,7 +97,7 @@
 
 订阅安全更新：
 - Watch 本仓库的 Security Advisories
-- 关注 [Releases](https://github.com/GeezCo/gzDoc/releases) 页面
+- 关注 [Releases](https://github.com/GeezCo/GeezCo.github.io/releases) 页面
 
 ## 致谢
 
